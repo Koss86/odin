@@ -26,7 +26,8 @@ main :: proc() {
         return
     }
     
-    lstr := string(tmp[:num])
+    hstr:string= string(tmp[:num])
+    h:= strconv.atoi(hstr)
 
     fmt.println("Width?")
 
@@ -35,14 +36,12 @@ main :: proc() {
         fmt.eprintln("Error reading: ", err)
     }
 
-    wstr := string(tmp[:num])
-    w: int 
-    w = strconv.atoi(wstr)
-    l: int 
-    l = strconv.atoi(lstr)
+    wstr:= string(tmp[:num]) 
+    w:= strconv.atoi(wstr)
+    
 
-    for i := 0; i < l; i+=1 {
-        for j:=0; j < w; j+=1 {
+    for i:= 0; i < h; i +=1 {
+        for j:= 0; j < w; j +=1 {
             fmt.printf("#")
         }
         fmt.println("")
