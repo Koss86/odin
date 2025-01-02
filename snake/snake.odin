@@ -22,7 +22,7 @@ restart :: proc() {
     snake[1] = start_head_pos - {0,1}
     snake[2] = start_head_pos - {0,2}
     snake_length = 3
-    move_direction = {-1, 0}
+    move_direction = {0, -1}
     game_over = false
 }
 
@@ -52,6 +52,7 @@ main :: proc() {
             if rl.IsKeyPressed(.ENTER) {
                 restart()
             }
+            
         } else {
 
             tick_timer -= rl.GetFrameTime()
@@ -62,8 +63,8 @@ main :: proc() {
             next_part_pos:= snake[0]
             snake[0] += move_direction
 
-            if snake[0].x < 0 || snake[0].y < 0 || 
-                snake[0].x >= GRID_WIDTH || snake[0].y >= GRID_WIDTH {
+            if snake[0].x < 0 || snake[0].y < 0 || snake[0].x >= GRID_WIDTH || snake[0].y >= GRID_WIDTH {
+
                 game_over = true
             }
 
