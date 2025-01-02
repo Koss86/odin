@@ -4,12 +4,19 @@ import "core:fmt"
 import "core:os"
 
 main :: proc() {
-    h := 10
-    w := 10
-    for i := 0; i < h; i += 1 { 
-        for j := 0; j < w; j += 1 {
-            fmt.printf("#")
-        }
-        fmt.printf("\n")
-    }
+	numbers := [10]int {
+		6, 4, 7, 10, 1, -1, -9, 100, 1, 54,
+	}
+
+	cmp := 6
+
+	for n in numbers {
+		if is_bigger_than(n, cmp) {
+			fmt.printfln("%v is bigger than %v", n, cmp)
+		}	
+	}
+}
+
+is_bigger_than :: proc(number: int, compare_to: int) -> bool {
+	return number > compare_to
 }
