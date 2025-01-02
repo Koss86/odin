@@ -6,7 +6,7 @@ WINDOW_SIZE :: 1000
 GRID_WIDTH :: 20
 CELL_SIZE :: 16
 CANVAS_SIZE :: GRID_WIDTH*CELL_SIZE
-TICK_RATE :: 0.1
+TICK_RATE :: 0.12
 Vec2i :: [2]int
 
 tick_timer: f32 = TICK_RATE
@@ -16,10 +16,10 @@ move_direction: Vec2i
 main :: proc() {
     
     rl.SetConfigFlags({.VSYNC_HINT})
-    rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Snake Game")
+    rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Snake Game, Eventually")
 
     snake_head_position = {GRID_WIDTH / 2, GRID_WIDTH / 2}
-    move_direction = {0, 1}
+    move_direction = {-1, 0}
 
     for !rl.WindowShouldClose() {
 
@@ -42,7 +42,7 @@ main :: proc() {
         }
 
         rl.BeginDrawing()
-        rl.ClearBackground({76, 53, 83, 255})
+        rl.ClearBackground({150, 150, 150, 255})
 
         camera := rl.Camera2D {
             zoom = f32(WINDOW_SIZE) / CANVAS_SIZE
@@ -55,7 +55,7 @@ main :: proc() {
             CELL_SIZE,
             CELL_SIZE,
         }
-        rl.DrawRectangleRec(head_rect, rl.WHITE)
+        rl.DrawRectangleRec(head_rect, rl.GREEN)
 
 
         
