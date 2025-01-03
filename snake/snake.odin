@@ -22,7 +22,7 @@ restart :: proc() {
     snake[1] = start_head_pos - {0,1}
     snake[2] = start_head_pos - {0,2}
     snake_length = 3
-    move_direction = {0, -1}
+    move_direction = {0, 1}
     game_over = false
 }
 
