@@ -1,7 +1,7 @@
 Odin/Raylib Tutorial 
 
-1. Open a Window.
-2. Draw snake head on a grid.
+X 1. Open a Window.
+X 2. Draw snake head on a grid.
 3. Zoom using camera.
 4. Make head move.
 5. User Input Ctrl.
@@ -15,4 +15,4 @@ Odin/Raylib Tutorial
 13. End of Tutorial.
 -----------
 Improvements:
-- Not allow to backtrack.
+- Dont allow to backtrack.
