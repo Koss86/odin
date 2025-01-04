@@ -59,6 +59,7 @@ main :: proc() {
     rl.InitAudioDevice()
 
     game_start()
+    
     food_sprite := rl.LoadTexture("img/food.png")
     head_sprite := rl.LoadTexture("img/head.png")
     body_sprite := rl.LoadTexture("img/body.png")
@@ -73,7 +74,7 @@ main :: proc() {
     }
 
     for !rl.WindowShouldClose() {
-
+        
         if rl.IsKeyDown(.UP) {
             if move_snek == { 0, 1 } {
 
@@ -144,7 +145,6 @@ main :: proc() {
 
         rl.BeginDrawing()
         rl.ClearBackground({150, 150, 150, 255})
-
         rl.BeginMode2D(camera)
 
         rl.DrawTextureV(food_sprite, {f32(food_pos.x*CELL_SIZE), f32(food_pos.y*CELL_SIZE)}, rl.WHITE)
@@ -170,8 +170,18 @@ main :: proc() {
             src := rl.Rectangle {
                 0, 0,
                 f32(tmp_sprite.width),
-                f32(tmp_sprite.height)
+                f32(tmp_sprite.height) 
             }
+            if rl.GetFrameTime() > 0 {
+                if i == 0 {
+                    if move_snek == { -1, 0 } {
+                       src = rl.Rectangle {
+                            0, 0,
+                            f32(tmp_sprite.width),
+                            f32(tmp_sprite.height)* -1.0 
+                        } 
+                    }
+                }  
 
             dest := rl.Rectangle {
                 f32(snek[i].x)*CELL_SIZE + 0.5*CELL_SIZE,
@@ -181,6 +191,7 @@ main :: proc() {
             }
 
             rl.DrawTexturePro(tmp_sprite, src, dest, {CELL_SIZE, CELL_SIZE}*0.5, rot, rl.WHITE)
+            }
         }
         
 
