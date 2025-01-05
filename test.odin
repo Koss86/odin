@@ -1,7 +1,6 @@
 package main
 
 import "core:fmt"
-import "core:os"
 
 main :: proc() {
 	numbers := [10]int {

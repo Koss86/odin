@@ -1,0 +1,15 @@
+Breakout built with Odin & Raylib
+
+1. Create window & main loop
+2. Player paddle
+3. Ball: Draw & move
+4. Collision with paddle & walls
+5. Blocks: Draw & place
+6. Balls & blocks Collision 
+7. Score counter
+8. Temp allocator
+9. Game over & start screen
+10. Graphics
+11. Sound
+12. Fixed timestep physics
+13. Ideas for improvments

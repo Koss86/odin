@@ -7,7 +7,7 @@ import "core:fmt"
 WINDOW_SIZE :: 1000
 GRID_WIDTH :: 20
 CELL_SIZE :: 16
-TICK_RATE :: 0.123
+TICK_RATE :: 0.13
 CANVAS_SIZE :: GRID_WIDTH*CELL_SIZE
 MAX_SNEK_LENGTH :: GRID_WIDTH*GRID_WIDTH
 
@@ -169,6 +169,7 @@ main :: proc() {
                 f32(tmp_sprite.width),
                 f32(tmp_sprite.height) 
             }
+            
             if rl.GetFrameTime() > 0 {
                 if i == 0 {
                     if move_snek == { -1, 0 } {
@@ -194,7 +195,7 @@ main :: proc() {
 
         if game_over {
             rl.DrawText("Game Over", 98, 4, 25, rl.RED)
-            rl.DrawText("Press Enter to try again.", 70, 30, 15, rl.GRAY)
+            rl.DrawText("Press Enter to play again.", 70, 30, 15, rl.GRAY)
         }
 
         score := snek_length-3
