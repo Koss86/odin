@@ -128,7 +128,6 @@ main :: proc() {
                     game_over = true
                     rl.PlaySound(crash_sound)
                 }
-
                 snek[i] = next_pos
                 next_pos = cur_pos
             }
@@ -139,16 +138,14 @@ main :: proc() {
                 rl.PlaySound(eat_sound)
                 place_food()
             }
-
             tick_timer = TICK_RATE + tick_timer
         }
 
         rl.BeginDrawing()
-        rl.ClearBackground({150, 150, 150, 255})
+        rl.ClearBackground({1, 1, 1, 255})
         rl.BeginMode2D(camera)
 
         rl.DrawTextureV(food_sprite, {f32(food_pos.x*CELL_SIZE), f32(food_pos.y*CELL_SIZE)}, rl.WHITE)
-
 
         for i in 0..<snek_length {
             tmp_sprite := body_sprite
@@ -197,12 +194,12 @@ main :: proc() {
 
         if game_over {
             rl.DrawText("Game Over", 98, 4, 25, rl.RED)
-            rl.DrawText("Press Enter to try again.", 70, 30, 15, rl.BLACK)
+            rl.DrawText("Press Enter to try again.", 70, 30, 15, rl.GRAY)
         }
 
         score := snek_length-3
         score_str := fmt.ctprintf("Score: %v", score)
-        rl.DrawText(score_str, 4, 299, 15, rl.BLACK)
+        rl.DrawText(score_str, 4, 299, 15, rl.GRAY)
 
         rl.EndDrawing()
         rl.EndMode2D()
