@@ -10,9 +10,13 @@ LEN :: 5
 
 Vec2s :: [2] string
 Vec2i :: [2] int
+loc_str_struc :: struct {
+	loc1: string,
+	loc2: string
+}
 loc_struct :: struct {
 	loc1: [5] u8,
-	loc2: [5] u8,
+	loc2: [5] u8
 }
 
 main :: proc() {
@@ -25,7 +29,7 @@ main :: proc() {
 	}
 	defer delete(data, context.allocator)
 
-	locations_str: [SIZE] Vec2s
+	locations_str: [SIZE] loc_str_struc
 	it := string(data)
 
 	for i in 0..<SIZE {
@@ -41,10 +45,10 @@ main :: proc() {
 					fmt.println("Error in split_multi_iterate")
 				}
 				if count == 0 {
-					locations_str[i].x = str
+					locations_str[i].loc1 = str
 					count += 1
 				} else {
-					locations_str[i].y = str
+					locations_str[i].loc2 = str
 					count = 0
 				}
 			}
@@ -53,21 +57,23 @@ main :: proc() {
 	//tmp := locations_str[i].x[i]
 	//tmp = c_atoi(tmp)
 	locations_num: [SIZE] loc_struct
+	nums := locations_num
+	strs := locations_str
 	for i in 0..<SIZE {
-		for j:int; j<SIZE; j+=1 {
-			tmp:= c_atoi(locations_str[i].x[j])
-			locations_num[i].loc1[j] = tmp
-			tmp = c_atoi(locations_str[i].y[j])
-			locations_num[i].loc2[j] = tmp
+		for j: int; j < SIZE; j += 1 {
+			tmp:= strs[i].loc1[j]
+			nums[i].loc1[j] = c_atoi(tmp)
+			tmp = strs[i].loc2[j]
+			nums[i].loc2[j] = c_atoi(tmp)
 		}
 	}
 	for i in 0..<SIZE {
 		for j in 0..<LEN {
-			fmt.printf("%v", locations_num[i].loc1[j])
+			fmt.printf("%v", nums[i].loc1[j])
 		}
 		fmt.printf(" ")
 		for j in 0..<LEN {
-			fmt.printf("%v", locations_num[i].loc2[j])
+			fmt.printf("%v", nums[i].loc2[j])
 		}
 		fmt.println("")
 	} 
