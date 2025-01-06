@@ -2,6 +2,7 @@ package breakout
 
 import rl "vendor:raylib"
 import "core:math"
+import "core:math/linalg"
 
 SCREEN_SIZE :: 320
 PADDLE_WIDTH :: 50
@@ -15,13 +16,7 @@ BALL_START_Y :: SCREEN_SIZE/2
 paddle_pos_x: f32
 ball_pos: rl.Vector2
 ball_dir: rl.Vector2
-started: bool
-
-game_state :: proc() {
-    paddle_pos_x = (SCREEN_SIZE/2) - (PADDLE_WIDTH/2)
-    ball_pos = {SCREEN_SIZE/2, BALL_START_Y}
-    started = false
-}
+usr_started: bool
 
 main :: proc() {
     rl.SetConfigFlags({.VSYNC_HINT})
@@ -37,10 +32,16 @@ main :: proc() {
         
         dt: f32
 
-        if !started {
+        if !usr_started {
+            ball_pos = {
+                SCREEN_SIZE/2 + f32(math.cos(rl.GetTime())*SCREEN_SIZE/2.5),
+                BALL_START_Y
+            }
             if rl.IsKeyPressed(.SPACE) {
-                ball_dir = {0, 1}
-                started = true
+                paddle_mid := rl.Vector2 { paddle_pos_x + PADDLE_WIDTH/2, PADDLE_POS_Y }
+                ball_to_pad := paddle_mid - ball_pos
+                ball_dir = linalg.normalize0(ball_to_pad)
+                usr_started = true
             } 
         } else {
             dt = rl.GetFrameTime()
@@ -54,24 +55,30 @@ main :: proc() {
             paddle_move_vel += PADDLE_SPEED
         }
 
+       
         ball_pos += ball_dir * BALL_SPEED * dt
         paddle_pos_x += paddle_move_vel * dt
         paddle_pos_x = clamp(paddle_pos_x, 0, SCREEN_SIZE - PADDLE_WIDTH)
-        
-        rl.BeginDrawing()
-        rl.ClearBackground({150, 190, 200, 255})
-        rl.BeginMode2D(camera)
-
         paddle_rect := rl.Rectangle {
             paddle_pos_x, PADDLE_POS_Y,
             PADDLE_WIDTH, PADDLE_HEIGHT
         }
+
+        rl.BeginDrawing()
+        rl.ClearBackground({150, 190, 200, 255})
+        rl.BeginMode2D(camera)
+
         rl.DrawRectangleRec(paddle_rect, {50, 150, 90, 255})
         rl.DrawCircleV(ball_pos, BALL_RAD, rl.RED)
 
         rl.EndMode2D()
         rl.EndDrawing()
     }
-
     rl.CloseWindow()
+}
+
+game_state :: proc() {
+    paddle_pos_x = (SCREEN_SIZE/2) - (PADDLE_WIDTH/2)
+    ball_pos = {SCREEN_SIZE/2, BALL_START_Y}
+    usr_started = false
 }
