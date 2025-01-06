@@ -2,7 +2,6 @@ package main
 
 import "core:fmt"
 import "core:os"
-//import "core:strings"
 import "core:strconv"
 
 main :: proc() {
@@ -44,7 +43,7 @@ main :: proc() {
         for j:= 0; j < w; j +=1 {
             fmt.printf("#")
         }
-        fmt.println("")
+        fmt.printf("\n")
     }
     
 }
