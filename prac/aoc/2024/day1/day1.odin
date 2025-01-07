@@ -84,18 +84,19 @@ main :: proc() {
 		fmt.println("")
 	}
 
-	a, b: u8
+	a, b: int
 	sum,total: int
 	for i in 0..<SIZE { // 8889 too low
 		for j in 0..<LEN {
-			a = locations_num[i].loc1[j]
-			b = locations_num[i].loc2[j]
+			a = int(locations_num[i].loc1[j])
+			b = int(locations_num[i].loc2[j])
 			if a < b {
-				sum = int(b - a)
-			} else {
-				sum = int(a - b)
+				sum = b - a
+			} else{
+				sum = a - b
 			}
 			total += sum
+			sum = 0
 		}
 	}
 	fmt.println("Total is", total)
