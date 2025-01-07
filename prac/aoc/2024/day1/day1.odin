@@ -4,6 +4,7 @@ import "core:os"
 import "core:fmt"
 import "core:sort"
 import "core:strings"
+import "core:strconv"
 
 SIZE :: 1000
 LEN :: 5
@@ -13,8 +14,8 @@ loc_str_struc :: struct {
 	loc2: string
 }
 loc_struct :: struct {
-	loc1: [5] u8,
-	loc2: [5] u8
+	loc1:int,
+	loc2:int
 }
 
 main :: proc() {
@@ -57,49 +58,20 @@ main :: proc() {
 	locations_num: [SIZE] loc_struct
 
 	for i in 0..<SIZE {
-		//fmt.printfln("i is %v", i)
-		for j: int; j < LEN; j += 1 {
-			//fmt.printfln("j is %v", j)
 
-			tmp:= locations_str[i].loc1[j]
-			locations_num[i].loc1[j] = c_atoi(tmp)
+		locations_num[i].loc1 = strconv.atoi(locations_str[i].loc1)
+		locations_num[i].loc2 = strconv.atoi(locations_str[i].loc2)
 
-			tmp = locations_str[i].loc2[j]
-			locations_num[i].loc2[j] = c_atoi(tmp)
-
-			//fmt.printfln("%r", locations_str[i].loc1[j])
-		}
+		fmt.printf("%i ", locations_num[i].loc1)
+		fmt.printfln("%i", locations_num[i].loc2)
 	}
-	for i in 0..<SIZE {
-		sort.bubble_sort(locations_num[i].loc1[:])
-		sort.bubble_sort(locations_num[i].loc2[:])
-		for j in 0..<LEN {
-			fmt.printf("%v", locations_num[i].loc1[j])
-		}
-		fmt.printf(" ")
+	//for i in 0..<SIZE {
+		//sort.bubble_sort(locations_num[i].loc1[:])
+		//sort.bubble_sort(locations_num[i].loc2[:])
+		
+	//}
 
-		for j in 0..<LEN {
-			fmt.printf("%v", locations_num[i].loc2[j])
-		}
-		fmt.println("")
-	}
-
-	a, b: int
-	sum,total: int
-	for i in 0..<SIZE { // 8889 too low
-		for j in 0..<LEN {
-			a = int(locations_num[i].loc1[j])
-			b = int(locations_num[i].loc2[j])
-			if a < b {
-				sum = b - a
-			} else{
-				sum = a - b
-			}
-			total += sum
-			sum = 0
-		}
-	}
-	fmt.println("Total is", total)
+	
 }
 
 
