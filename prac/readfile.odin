@@ -2,6 +2,7 @@ package main
 
 import "core:os"
 import "core:fmt"
+import "core:sort"
 import "core:strings"
 
 SIZE :: 1000
@@ -70,6 +71,8 @@ main :: proc() {
 		}
 	}
 	for i in 0..<SIZE {
+		sort.bubble_sort(locations_num[i].loc1[:])
+		sort.bubble_sort(locations_num[i].loc2[:])
 		for j in 0..<LEN {
 			fmt.printf("%v", locations_num[i].loc1[j])
 		}
