@@ -80,6 +80,7 @@ main :: proc() {
 
 	a, b: int
 	sum, total: int
+	
 	for i in 0..<SIZE { // 8889 too low
 		for j in 0..<LEN {
 			a = locations_num[i].loc1[j]
