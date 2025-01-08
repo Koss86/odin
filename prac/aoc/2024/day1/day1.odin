@@ -82,6 +82,7 @@ main :: proc() {
 
 			sum = b - a
 			fmt.printfln("b(%v) - a(%v) = %v", b, a, b-a)
+			
 		} else {
 
 			sum = a - b
