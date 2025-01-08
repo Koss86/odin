@@ -2,8 +2,9 @@ package aoc_2024_day1
 
 import "core:os"
 import "core:fmt"
-import "core:sort"
+import "core:slice"
 import "core:strings"
+import "core:strconv"
 
 SIZE :: 1000
 LEN :: 5
@@ -13,14 +14,15 @@ loc_str_struc :: struct {
 	loc2: string,
 }
 loc_struct :: struct {
-	loc1: [LEN] int,
-	loc2: [LEN] int,
+	loc: [SIZE]int,
 }
 
 main :: proc() {
+
 	file := "../inputs/input1.txt"
     data, ok := os.read_entire_file(file, context.allocator)
 	if !ok {
+
 		fmt.println("Error reading input.")
 		return
 	}
@@ -31,20 +33,26 @@ main :: proc() {
 	it := string(data)
 
 	for line in strings.split_lines_iterator(&it) {
+
 		if !ok {
+
 		fmt.println("Error in split_lines_iterator")
 		}
 		ns := line
 		splits := [?]string {"   ", "-"}
 		count: int
 		for str in strings.split_multi_iterate(&ns, splits[:]) {
+
 			if !ok {
+
 				fmt.println("Error in split_multi_iterate")
 			}
 			if count == 0 {
+
 				locations_str[indx].loc1 = str
 				count += 1
 			} else {
+
 				//fmt.printfln("indx is %v", indx)
 				locations_str[indx].loc2 = str
 				count = 0
@@ -52,55 +60,34 @@ main :: proc() {
 			}
 		}
 	}
-	locations_num: [SIZE] loc_struct
+	l_list: loc_struct
+	r_list: loc_struct
 	for i in 0..<SIZE {
-		for j in 0..<LEN {
 
-			tmp:= locations_str[i].loc1[j]
-			locations_num[i].loc1[j] = int(c_atoi(tmp))
+		tmp:= locations_str[i].loc1
+		l_list.loc[i] = strconv.atoi(tmp)
 
-			tmp = locations_str[i].loc2[j]
-			locations_num[i].loc2[j] = int(c_atoi(tmp))
-		}
+		tmp = locations_str[i].loc2
+		r_list.loc[i] = strconv.atoi(tmp)
 	}
-	for i in 0..<SIZE {
-		sort.bubble_sort(locations_num[i].loc1[:])
-		sort.bubble_sort(locations_num[i].loc2[:])
-
-				//Debugging print statement
-		//for j in 0..<LEN {
-		//	fmt.printf("%v", locations_num[i].loc1[j])
-		//}
-		//fmt.printf(" ")
-		//for j in 0..<LEN {
-		//	fmt.printf("%v", locations_num[i].loc2[j])
-		//}
-		//fmt.println("")
-	}
-
+	slice.sort(l_list.loc[:])
+	slice.sort(r_list.loc[:])
 	a, b: int
 	sum, total: int
-	
 	for i in 0..<SIZE { // 8889 too low
-		for j in 0..<LEN {
-			a = locations_num[i].loc1[j]
-			b = locations_num[i].loc2[j]
-			if a < b {
-				sum = b - a
-				fmt.printfln("b(%v) - a(%v) = %v", b, a, b-a)
-			} else {
-				sum = a - b
-				fmt.printfln("a(%v) - b(%v) = %v", a, b, a-b)
-			}
-			total += sum
+
+		a = l_list.loc[i]
+		b = r_list.loc[i]
+		if a < b {
+
+			sum = b - a
+			fmt.printfln("b(%v) - a(%v) = %v", b, a, b-a)
+		} else {
+
+			sum = a - b
+			fmt.printfln("a(%v) - b(%v) = %v", a, b, a-b)
 		}
-	}
+		total += sum
+		}
 	fmt.println("Total is", total)
-}
-
-
-c_atoi :: proc(i: u8) -> u8 {
-	tmp := i
-	tmp = tmp-48
-	return tmp
 }
