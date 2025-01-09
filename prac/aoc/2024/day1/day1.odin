@@ -68,10 +68,13 @@ main :: proc() {
 		tmp = locations_str[i].loc2
 		r_list[i] = strconv.atoi(tmp)
 	}
+
 	slice.sort(l_list[:])
 	slice.sort(r_list[:])
+	
 	a, b: int
 	sum, total: int
+
 	for i in 0..<SIZE {
 
 		a = l_list[i]
@@ -91,4 +94,21 @@ main :: proc() {
 		total += sum
 	}
 	fmt.println("Total is", total)
+
+	similarity : int
+	total = 0
+	sum = 0
+
+	for i in 0..<SIZE {
+
+		for j in 0..<SIZE {
+
+			if l_list[i] == r_list[j] {
+				sum += 1
+			}
+			total += l_list[i]*sum
+			sum = 0
+		}
+	}
+	fmt.printfln("Similarity is %v", total)
 }
