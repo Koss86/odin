@@ -66,20 +66,24 @@ main :: proc() {
             indx1 += 1
         }
     }
-    //for i in 0..<N {
-    //    for v in unusual_data[i].data {
-    //        fmt.println(v)
-    //    }
-    //}
-    fmt.printfln("Total is %v", indx1)
+            // Debugging
+    for i in 0..<N {
+        if safe_list[i] {
+            fmt.printfln("Index %v is safe.", i+1)
+        } else {
+            fmt.printfln("Index %v is unsafe.", i+1)
+        }
+    }
+            // Print Part 1 answer
+    fmt.printfln("Part 1 answer: %v", indx1)
 
-    for i in 0..<N2 {
+    for i in 0..<N {
         if !safe_list[i] {
-            fmt.printfln("safe index: %v", i)
+            //fmt.printfln("safe index: %v", i)
             safe_list[i] = rem_accend_or_decend_ok(unusual_data[i].data[:]) 
         }
     }
-    for i in 0..<N2 {
+    for i in 0..<N {
         if !safe_list[i] {
             safe_list[i] = rem_is_dist_safe(unusual_data[i].data[:])
         }
@@ -91,7 +95,7 @@ main :: proc() {
             indx1 += 1
         }
     }
-    fmt.printfln("Total is %v", indx1) // 702 too high. 585 part 1 answer
+    fmt.printfln("Part 2 answer: %v", indx1) // 702 too high. 585 part 1 answer
 }
 
 accend_or_decend_ok :: proc(data: [] int) -> bool {
@@ -156,6 +160,7 @@ rem_accend_or_decend_ok :: proc(data: [] int) -> bool {
     cur: int
     nxt: int
     unsafe: bool
+    is_safe: int
     if data[0] > data[length-1] {
 
         for i in 0..<length-1 {
@@ -166,6 +171,7 @@ rem_accend_or_decend_ok :: proc(data: [] int) -> bool {
                     continue
                 }
                 if data[j] > data[j+1] {
+                    is_safe += 1
                     continue
                 } else {
                     unsafe = true
