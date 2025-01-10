@@ -66,12 +66,32 @@ main :: proc() {
             indx1 += 1
         }
     }
-    for i in 0..<N {
-        for v in unusual_data[i].data {
-            fmt.println(v)
+    //for i in 0..<N {
+    //    for v in unusual_data[i].data {
+    //        fmt.println(v)
+    //    }
+    //}
+    fmt.printfln("Total is %v", indx1)
+
+    for i in 0..<N2 {
+        if !safe_list[i] {
+            fmt.printfln("safe index: %v", i)
+            safe_list[i] = rem_accend_or_decend_ok(unusual_data[i].data[:]) 
         }
     }
-    fmt.printfln("Total is %v", indx1)
+    for i in 0..<N2 {
+        if !safe_list[i] {
+            safe_list[i] = rem_is_dist_safe(unusual_data[i].data[:])
+        }
+    }
+
+    indx1 = 0
+    for i in 0..<N {
+        if safe_list[i] {
+            indx1 += 1
+        }
+    }
+    fmt.printfln("Total is %v", indx1) // 702 too high. 585 part 1 answer
 }
 
 accend_or_decend_ok :: proc(data: [] int) -> bool {
@@ -135,20 +155,20 @@ rem_accend_or_decend_ok :: proc(data: [] int) -> bool {
     length := arry_len(data)
     cur: int
     nxt: int
-    unsafe: int
+    unsafe: bool
     if data[0] > data[length-1] {
 
         for i in 0..<length-1 {
             cur = data[i]
             nxt = data[i+1]
             for j in 0..<length-1 {
-                if data[j] == cur {
+                if j == i {
                     continue
                 }
                 if data[j] > data[j+1] {
                     continue
                 } else {
-                    return false
+                    unsafe = true
                 }
             }
         }
@@ -158,12 +178,56 @@ rem_accend_or_decend_ok :: proc(data: [] int) -> bool {
         for i in 0..<length-1 {
             cur = data[i]
             nxt = data[i+1]
-            if data[i] < data[i+1] {
-                continue
-            } else {
-                return false
+            for j in 0..<length-1 {
+                if j == i {
+                    continue
+                }
+                if data[j] < data[j+1] {
+                    continue
+                } else {
+                    unsafe = true
+                }
             }
         }
     }
-    return true
+    if unsafe {
+        return false
+    } else {
+        return true
+    }
+}
+
+rem_is_dist_safe :: proc (arry: []int) -> bool {
+    dist: int
+    cur: int
+    nxt: int
+    failed: bool
+    n := arry_len(arry)
+    for i in 0 ..< n-1 {
+        cur = arry[i]
+        nxt = arry[i+1]
+        for j in 0..<n-1 {
+            if j == i {
+                continue
+            } else if i == n-2 {
+                continue
+            } else if j+1 == i {
+                nxt = arry[i+2]
+                }
+            
+            if cur < nxt {
+                dist = nxt - cur
+            } else {
+                dist = cur - nxt
+            }
+            if dist > 3 {
+                failed = true
+            }
+        }
+    }
+    if failed {
+        return false
+    } else {
+        return true
+    }
 }
