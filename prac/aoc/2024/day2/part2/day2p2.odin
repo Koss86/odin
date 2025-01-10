@@ -6,6 +6,7 @@ import "core:strings"
 import "core:strconv"
 
 N :: 1000
+N2 :: 415
 
 Arry_i8 :: struct {
     data: [8] int
@@ -66,20 +67,19 @@ main :: proc() {
         }
     }
     for i in 0..<N {
-        fmt.printfln("List %v: %v", i+1, safe_list[i])
+        for v in unusual_data[i].data {
+            fmt.println(v)
+        }
     }
     fmt.printfln("Total is %v", indx1)
 }
 
 accend_or_decend_ok :: proc(data: [] int) -> bool {
-    length := arry_len(data)
-    cur: int
-    nxt: int
-    if data[0] > data[length-1] {
 
-        for i in 0..<length-1 {
-            cur = data[i]
-            nxt = data[i+1]
+    n := arry_len(data)
+    if data[0] > data[n-1] {
+
+        for i in 0..<n-1 {
             if data[i] > data[i+1] {
                 continue
             } else {
@@ -89,9 +89,7 @@ accend_or_decend_ok :: proc(data: [] int) -> bool {
 
     } else {
 
-        for i in 0..<length-1 {
-            cur = data[i]
-            nxt = data[i+1]
+        for i in 0..< n-1 {
             if data[i] < data[i+1] {
                 continue
             } else {
@@ -106,8 +104,8 @@ is_dist_safe :: proc (arry: []int) -> bool {
     dist: int
     cur: int
     nxt: int
-    n: int = arry_len(arry)
-    for i in 0..<n-1 {
+    n := arry_len(arry)
+    for i in 0 ..< n-1 {
         cur = arry[i]
         nxt = arry[i+1]
         if cur < nxt {
@@ -133,3 +131,39 @@ arry_len :: proc(arry: []int) -> int {
     return size
 }
 
+rem_accend_or_decend_ok :: proc(data: [] int) -> bool {
+    length := arry_len(data)
+    cur: int
+    nxt: int
+    unsafe: int
+    if data[0] > data[length-1] {
+
+        for i in 0..<length-1 {
+            cur = data[i]
+            nxt = data[i+1]
+            for j in 0..<length-1 {
+                if data[j] == cur {
+                    continue
+                }
+                if data[j] > data[j+1] {
+                    continue
+                } else {
+                    return false
+                }
+            }
+        }
+
+    } else {
+
+        for i in 0..<length-1 {
+            cur = data[i]
+            nxt = data[i+1]
+            if data[i] < data[i+1] {
+                continue
+            } else {
+                return false
+            }
+        }
+    }
+    return true
+}
