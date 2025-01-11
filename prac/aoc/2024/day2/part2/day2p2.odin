@@ -60,27 +60,31 @@ main :: proc() {
             safe_list[i] = is_dist_safe(unusual_data[i].data[:])
         }
     }
-    indx1 = 0
+
+    indx1 = 0           // reusing indx1 to count safe list
     for i in 0..<N {
         if safe_list[i] {
             indx1 += 1
         }
     }
             // Debugging
-    for i in 0..<N {
-        if safe_list[i] {
-            fmt.printfln("Index %v is safe.", i+1)
-        } else {
-            fmt.printfln("Index %v is unsafe.", i+1)
-        }
-    }
+    //for i in 0..<N {
+    //    if safe_list[i] {
+    //        fmt.printfln("Index %v is safe.", i+1)
+    //    } else {
+    //        fmt.printfln("Index %v is unsafe.", i+1)
+    //    }
+    //}
             // Print Part 1 answer
     fmt.printfln("Part 1 answer: %v", indx1)
-
+    list_copy := safe_list
     for i in 0..<N {
         if !safe_list[i] {
             //fmt.printfln("safe index: %v", i)
-            safe_list[i] = rem_accend_or_decend_ok(unusual_data[i].data[:]) 
+            safe_list[i] = rem_accend_or_decend_ok(unusual_data[i].data[:])
+            //if safe_list[i] {
+            //    safe_list[i] = rem_is_dist_safe(unusual_data[i].data[:]) 
+            //} 
         }
     }
     for i in 0..<N {
@@ -95,7 +99,8 @@ main :: proc() {
             indx1 += 1
         }
     }
-    fmt.printfln("Part 2 answer: %v", indx1) // 702 too high. 585 part 1 answer
+                // Print Part 2 answer.
+    fmt.printfln("Part 2 answer: %v", indx1) // 702 too high. 614 too low.
 }
 
 accend_or_decend_ok :: proc(data: [] int) -> bool {
@@ -156,35 +161,47 @@ arry_len :: proc(arry: []int) -> int {
 }
 
 rem_accend_or_decend_ok :: proc(data: [] int) -> bool {
-    length := arry_len(data)
+    n := arry_len(data)
     cur: int
     nxt: int
-    unsafe: bool
+    unsafe: int
     is_safe: int
-    if data[0] > data[length-1] {
+    if data[0] > data[n-1] {
 
-        for i in 0..<length-1 {
+        for i in 0..<n-1 {          // var i is the index to the number we want to skip
             cur = data[i]
             nxt = data[i+1]
-            for j in 0..<length-1 {
+            for j in 0..<n-1 {      // here we check if list is safe while skipping the index = to i
+
+                if j == i-1 {       // here stops us from comparing j with index we want to skip
+
+                    if data[j] > data[j+2] {
+                        continue
+                    } else {
+                        unsafe += 1
+                        continue
+                    }
+                }
+
                 if j == i {
                     continue
                 }
+
                 if data[j] > data[j+1] {
-                    is_safe += 1
                     continue
                 } else {
                     unsafe = true
                 }
             }
         }
-
     } else {
-
-        for i in 0..<length-1 {
+        for i in 0..<n-1 {
             cur = data[i]
             nxt = data[i+1]
-            for j in 0..<length-1 {
+            for j in 0..<n-1 {
+                if i == n-2 { // if index we want to skip is last in array.
+
+                }
                 if j == i {
                     continue
                 }
