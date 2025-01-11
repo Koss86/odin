@@ -7,7 +7,6 @@ import "core:strings"
 import "core:strconv"
 
 N :: 1000
-N2 :: 415
 
 Arry_i8 :: struct {
     data: [8] int
@@ -42,14 +41,6 @@ main :: proc() {
         indx1 += 1
         indx2 = 0
     }
-            // Debugging
-    //for i in 0..<N {
-    //    indx1 = 0
-    //    for j in 0..<8 {
-    //        fmt.printf("%i ", unusual_data[i].data[j])  
-    //    }
-    //    fmt.println("")
-    //}
     safe_list: [N] bool
     size: int
     for i in 0..<N {
@@ -63,7 +54,6 @@ main :: proc() {
             safe_list[i] = is_dist_safe(unusual_data[i].data[:])
         }
     }
-
     total: int           
     for i in 0..<N {
         if safe_list[i] {
@@ -72,15 +62,12 @@ main :: proc() {
     }
             // Print Part 1 answer
     fmt.printfln("Part 1 answer: %v", total)
-    
+
     for i in 0..<N {
         list_loop: if !safe_list[i] {
             leng := arry_len(unusual_data[i].data[:])
             for j in 0..<leng {
                 new_arry := remove_ele(slice.clone(unusual_data[i].data[:]), j)
-                //fmt.printf("remove_ele success %v\nLeng = %v\n", j, leng)
-                //fmt.printfln("old: %v\nnew: %v", unusual_data[i].data[:], new_arry)
-
                 if accend_or_decend_ok(new_arry[:]) == true {
 
                     if is_dist_safe(new_arry[:]) == true{
@@ -92,7 +79,6 @@ main :: proc() {
             }
         }
     }
-
     total = 0
     for i in 0..<N {
         if safe_list[i] {
@@ -100,13 +86,11 @@ main :: proc() {
         }
     }
                 // Print Part 2 answer.
-    fmt.printfln("Part 2 answer: %v", indx1) // 702 too high. 614 too low.
+    fmt.printfln("Part 2 answer: %v", total) // 702 too high. 614 too low.
 }
-
 accend_or_decend_ok :: proc(data: [] int) -> bool {
     leng := arry_len(data)
     if data[0] > data[leng-1] {
-
         for i in 0..<leng-1 {
             if data[i] > data[i+1] {
                 continue
@@ -114,9 +98,7 @@ accend_or_decend_ok :: proc(data: [] int) -> bool {
                 return false
             }
         }
-
     } else {
-
         for i in 0..< leng-1 {
             if data[i] < data[i+1] {
                 continue
@@ -159,44 +141,44 @@ arry_len :: proc(arry: []int) -> int {
 
 remove_ele :: proc(arry: []int, remove: int) -> [] int {
     leng := arry_len(arry)
-
     if remove == leng-1 { // if removing last element, just zero it and return it.
         arry[leng-1] = 0
         return arry
     }
-    if remove == 0 {
-        for i in 0..<leng-1 {
-            arry[i] = arry[i+1]
-        }
-        arry[leng-1] = 0
-    } else if remove == 1 {
-        for i in 1..<leng-1 {
-            arry[i] = arry[i+1]
-        }
-        arry[leng-1] = 0
-    } else if remove == 2 {
-        for i in 2..<leng-1 {
-            arry[i] = arry[i+1]
-        }
-        arry[leng-1] = 0
-    } else if remove == 3 {
-        for i in 3..<leng-1 {
-            arry[i] = arry[i+1]
-        }
-        arry[leng-1] = 0
-    } else if remove == 4 {
-        for i in 4..<leng-1 {
-            arry[i] = arry[i+1] 
-        }
-        arry[leng-1] = 0
-    } else if remove == 5 {
-        for i in 5..<leng-1 {
-            arry[i] = arry[i+1]
-        }
-        arry[leng-1] = 0
-    } else if remove == 6 {
-        arry[leng-2] = arry[leng-1]
-        arry[leng-1] = 0
+    switch remove {
+        case 0:
+            for i in 0..<leng-1 {
+                arry[i] = arry[i+1]
+            }
+            arry[leng-1] = 0
+        case 1:
+            for i in 1..<leng-1 {
+                arry[i] = arry[i+1]
+            }
+            arry[leng-1] = 0
+        case 2:
+            for i in 2..<leng-1 {
+                arry[i] = arry[i+1]
+            }
+            arry[leng-1] = 0
+        case 3:
+            for i in 3..<leng-1 {
+                arry[i] = arry[i+1]
+            }
+            arry[leng-1] = 0
+        case 4:
+            for i in 4..<leng-1 {
+                arry[i] = arry[i+1] 
+            }
+            arry[leng-1] = 0
+        case 5:
+            for i in 5..<leng-1 {
+                arry[i] = arry[i+1]
+            }
+            arry[leng-1] = 0
+        case 6:
+            arry[leng-2] = arry[leng-1]
+            arry[leng-1] = 0
     }
     return arry    
 }
