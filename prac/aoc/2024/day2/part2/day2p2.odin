@@ -2,6 +2,7 @@ package aoc_2024_day2
 
 import "core:fmt"
 import "core:os"
+import "core:slice"
 import "core:strings"
 import "core:strconv"
 
@@ -50,53 +51,52 @@ main :: proc() {
     //    fmt.println("")
     //}
     safe_list: [N] bool
+    size: int
     for i in 0..<N {
         if accend_or_decend_ok(unusual_data[i].data[:]) {
             safe_list[i] = true
         }
     }
     for i in 0..<N {
+        size = arry_len(unusual_data[i].data[:])
         if safe_list[i] {
             safe_list[i] = is_dist_safe(unusual_data[i].data[:])
         }
     }
 
-    indx1 = 0           // reusing indx1 to count safe list
+    total: int           
     for i in 0..<N {
         if safe_list[i] {
-            indx1 += 1
+            total += 1
         }
     }
-            // Debugging
-    //for i in 0..<N {
-    //    if safe_list[i] {
-    //        fmt.printfln("Index %v is safe.", i+1)
-    //    } else {
-    //        fmt.printfln("Index %v is unsafe.", i+1)
-    //    }
-    //}
             // Print Part 1 answer
-    fmt.printfln("Part 1 answer: %v", indx1)
-    list_copy := safe_list
+    fmt.printfln("Part 1 answer: %v", total)
+    
     for i in 0..<N {
-        if !safe_list[i] {
-            //fmt.printfln("safe index: %v", i)
-            safe_list[i] = rem_accend_or_decend_ok(unusual_data[i].data[:])
-            //if safe_list[i] {
-            //    safe_list[i] = rem_is_dist_safe(unusual_data[i].data[:]) 
-            //} 
-        }
-    }
-    for i in 0..<N {
-        if !safe_list[i] {
-            safe_list[i] = rem_is_dist_safe(unusual_data[i].data[:])
+        list_loop: if !safe_list[i] {
+            leng := arry_len(unusual_data[i].data[:])
+            for j in 0..<leng {
+                new_arry := remove_ele(slice.clone(unusual_data[i].data[:]), j)
+                //fmt.printf("remove_ele success %v\nLeng = %v\n", j, leng)
+                //fmt.printfln("old: %v\nnew: %v", unusual_data[i].data[:], new_arry)
+
+                if accend_or_decend_ok(new_arry[:]) == true {
+
+                    if is_dist_safe(new_arry[:]) == true{
+
+                        safe_list[i] = true
+                        break list_loop
+                    }
+                }
+            }
         }
     }
 
-    indx1 = 0
+    total = 0
     for i in 0..<N {
         if safe_list[i] {
-            indx1 += 1
+            total += 1
         }
     }
                 // Print Part 2 answer.
@@ -104,11 +104,10 @@ main :: proc() {
 }
 
 accend_or_decend_ok :: proc(data: [] int) -> bool {
+    leng := arry_len(data)
+    if data[0] > data[leng-1] {
 
-    n := arry_len(data)
-    if data[0] > data[n-1] {
-
-        for i in 0..<n-1 {
+        for i in 0..<leng-1 {
             if data[i] > data[i+1] {
                 continue
             } else {
@@ -118,7 +117,7 @@ accend_or_decend_ok :: proc(data: [] int) -> bool {
 
     } else {
 
-        for i in 0..< n-1 {
+        for i in 0..< leng-1 {
             if data[i] < data[i+1] {
                 continue
             } else {
@@ -128,7 +127,6 @@ accend_or_decend_ok :: proc(data: [] int) -> bool {
     }
     return true
 }
-
 is_dist_safe :: proc (arry: []int) -> bool {
     dist: int
     cur: int
@@ -148,7 +146,6 @@ is_dist_safe :: proc (arry: []int) -> bool {
     }
     return true
 }
-
 arry_len :: proc(arry: []int) -> int {
     size: int
     outter: for v in arry {
@@ -160,97 +157,46 @@ arry_len :: proc(arry: []int) -> int {
     return size
 }
 
-rem_accend_or_decend_ok :: proc(data: [] int) -> bool {
-    n := arry_len(data)
-    cur: int
-    nxt: int
-    unsafe: int
-    is_safe: int
-    if data[0] > data[n-1] {
+remove_ele :: proc(arry: []int, remove: int) -> [] int {
+    leng := arry_len(arry)
 
-        for i in 0..<n-1 {          // var i is the index to the number we want to skip
-            cur = data[i]
-            nxt = data[i+1]
-            for j in 0..<n-1 {      // here we check if list is safe while skipping the index = to i
-
-                if j == i-1 {       // here stops us from comparing j with index we want to skip
-
-                    if data[j] > data[j+2] {
-                        continue
-                    } else {
-                        unsafe += 1
-                        continue
-                    }
-                }
-
-                if j == i {
-                    continue
-                }
-
-                if data[j] > data[j+1] {
-                    continue
-                } else {
-                    unsafe = true
-                }
-            }
+    if remove == leng-1 { // if removing last element, just zero it and return it.
+        arry[leng-1] = 0
+        return arry
+    }
+    if remove == 0 {
+        for i in 0..<leng-1 {
+            arry[i] = arry[i+1]
         }
-    } else {
-        for i in 0..<n-1 {
-            cur = data[i]
-            nxt = data[i+1]
-            for j in 0..<n-1 {
-                if i == n-2 { // if index we want to skip is last in array.
-
-                }
-                if j == i {
-                    continue
-                }
-                if data[j] < data[j+1] {
-                    continue
-                } else {
-                    unsafe = true
-                }
-            }
+        arry[leng-1] = 0
+    } else if remove == 1 {
+        for i in 1..<leng-1 {
+            arry[i] = arry[i+1]
         }
-    }
-    if unsafe {
-        return false
-    } else {
-        return true
-    }
-}
-
-rem_is_dist_safe :: proc (arry: []int) -> bool {
-    dist: int
-    cur: int
-    nxt: int
-    failed: bool
-    n := arry_len(arry)
-    for i in 0 ..< n-1 {
-        cur = arry[i]
-        nxt = arry[i+1]
-        for j in 0..<n-1 {
-            if j == i {
-                continue
-            } else if i == n-2 {
-                continue
-            } else if j+1 == i {
-                nxt = arry[i+2]
-                }
-            
-            if cur < nxt {
-                dist = nxt - cur
-            } else {
-                dist = cur - nxt
-            }
-            if dist > 3 {
-                failed = true
-            }
+        arry[leng-1] = 0
+    } else if remove == 2 {
+        for i in 2..<leng-1 {
+            arry[i] = arry[i+1]
         }
+        arry[leng-1] = 0
+    } else if remove == 3 {
+        for i in 3..<leng-1 {
+            arry[i] = arry[i+1]
+        }
+        arry[leng-1] = 0
+    } else if remove == 4 {
+        for i in 4..<leng-1 {
+            arry[i] = arry[i+1] 
+        }
+        arry[leng-1] = 0
+    } else if remove == 5 {
+        for i in 5..<leng-1 {
+            arry[i] = arry[i+1]
+        }
+        arry[leng-1] = 0
+    } else if remove == 6 {
+        arry[leng-2] = arry[leng-1]
+        arry[leng-1] = 0
     }
-    if failed {
-        return false
-    } else {
-        return true
-    }
+    return arry    
 }
