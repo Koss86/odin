@@ -1,15 +1,28 @@
 package test
 
-import "base:runtime"
 import "core:fmt"
+import "core:os"
 import "core:strings"
 import "core:unicode"
 import "core:unicode/utf8"
-import "core:text/scanner"
 
 main :: proc() {
     file:= "../input.txt"
-    init((scan_file), "../input.txt", file)
-    
-    
+    data, ok := os.read_entire_file(file, context.allocator)
+    if !ok {
+        fmt.eprintfln("Error. Unable to open file.")
+        return
+    }
+    defer delete(data, context.allocator)
+
+    it1 := string(data)
+
+    for line in strings.split_lines_iterator(&it1) {
+        for i in 0..<len(line) {
+            if line[i] == 'm' {
+                fmt.printfln("%r", line[i])
+            }
+        }
+    }
+     
 }

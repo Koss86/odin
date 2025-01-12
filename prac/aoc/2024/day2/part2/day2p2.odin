@@ -13,7 +13,7 @@ Arry_i8 :: struct {
 }
 
 main :: proc() {
-    
+
     file := "../input.txt"
     buff, ok := os.read_entire_file(file, context.allocator)
     if !ok {
@@ -67,10 +67,10 @@ main :: proc() {
         list_loop: if !safe_list[i] {
             leng := arry_len(unusual_data[i].data[:])
             for j in 0..<leng {
-                new_arry := remove_ele(slice.clone(unusual_data[i].data[:]), j)
-                if accend_or_decend_ok(new_arry[:]) == true {
+                new_arry := remove_ele(slice.clone(unusual_data[i].data[:], context.allocator), j)
+                if accend_or_decend_ok(new_arry[:]) {
 
-                    if is_dist_safe(new_arry[:]) == true{
+                    if is_dist_safe(new_arry[:]) {
 
                         safe_list[i] = true
                         break list_loop
