@@ -10,10 +10,8 @@ import "core:text/scanner"
 MAX_MUL :: 12
 MIN_MUL :: 8
 
-Mul :: string
-
 main :: proc() {
-    muls: [dynamic] Mul
+    muls: [dynamic] string
     file:= "input.txt"
     data, ok := os.read_entire_file(file, context.allocator)
     if !ok {
@@ -23,58 +21,66 @@ main :: proc() {
     defer delete(data, context.allocator)
 
     it := string(data)
-    x: int
-    y: int
     indx: int
     for line in strings.split_lines_iterator(&it) {
         n := len(line)
-         for i in 0..<n {
+        nxt: for i in 0..<n {
             if line[i] == 'm' && line[i+1] == 'u' && line[i+2] == 'l' && line[i+3] == '(' {
                 for j:=MIN_MUL-1; j < MAX_MUL; j += 1 {
 
                     if i+j >= n {
-                        continue
+                        break nxt
                     }
+                
                     if line[i+j] == ')' {
-                        dif := j
-                        if line[i+5] != ',' {
-                            if line[i+6] != ',' {
-                                if line[i+7] != ',' {
-                                    continue
-                                }
+                        start := i+4
+                        end := i+j
+                        delimit: int
+                        delimit = strings.index_any(line[i:end], ",")
+                        if delimit == -1 {
+                            fmt.println(line[start:end])
+                            break nxt
+                        }
+
+                        for l in start..<delimit {
+                            if line[l] < '0' || line[l] > '9' {
+                                break nxt
+                            }
+                        }
+                        for l in delimit+1..<end {
+                            if line[l] < '0' || line[l] > '9' {
+                                break nxt
                             }
                         }
 
-                        if line[i+6] != ',' && line[i+6] <= '0' && line[i+6] >= '9' {
-                            if line[i+7] != ',' && line[i+7] <= '0' && line[i+7] >= '9' {
-                                if line[i+8] <= '0' && line[i+8] >= '9' {
-                                    continue
-                                }
-                            }
+                        if line[i+(j-1)] == ')' {
+                            //fmt.println(line[start:end-1])
+                            append(&muls, line[start:end-1])
+                            break nxt
                         }
-                        start := i+4
-                        end := i+j
+                        //fmt.println(line[start:end])
                         append(&muls, line[start:end])
-                        //fmt.println(indx, muls[indx])
                         indx += 1
                     }
                 }
             }
         }
     }
-
-   ct, one, two, total: int
-    for str in muls { // 87,556,383 too low. 173,573,173 too high
+    one, two, total: int
+    for str in muls { // 87,556,383 too low. 171,049,841 wrong. 173,573,173 too high. wrong 169,296,326 169,352,256
         mul_str := str
         tmp, ok := strings.split_iterator(&mul_str, ",")
-        //fmt.printf("%s ", tmp)
         one = strconv.atoi(tmp)
-        fmt.printf("%i ", one)
+        //fmt.printf("%i ", one)
 
         tmp, ok = strings.split_iterator(&mul_str, ",")
-        //fmt.println(tmp)
         two = strconv.atoi(tmp)
-        fmt.println(two)
+        //fmt.println(two)
+        if one < 0 || one > 999 {
+            fmt.println("Oops. %v", one)
+        } else if two < 0 || two > 999 {
+            fmt.println("Oops. %v", two)
+        }
         mul:= one*two
         total += mul
     }
