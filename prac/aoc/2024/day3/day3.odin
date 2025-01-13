@@ -13,7 +13,7 @@ MIN_MUL :: 8
 Mul :: string
 
 main :: proc() {
-    mul_strs:[dynamic] Mul
+    muls: [dynamic] Mul
     file:= "input.txt"
     data, ok := os.read_entire_file(file, context.allocator)
     if !ok {
@@ -29,41 +29,54 @@ main :: proc() {
     for line in strings.split_lines_iterator(&it) {
         n := len(line)
          for i in 0..<n {
-            if line[i] == 'm' && line[i+1] == 'u' &&
-                line[i+2] == 'l' && line[i+3] == '(' {
-                    for j:=MIN_MUL-1; j < MAX_MUL; j += 1 {
+            if line[i] == 'm' && line[i+1] == 'u' && line[i+2] == 'l' && line[i+3] == '(' {
+                for j:=MIN_MUL-1; j < MAX_MUL; j += 1 {
 
-                        if (i+j) >= n {
-                            continue
-                        }
-
-                        if line[i+j] == ')' {
-                            begin := i+4
-                            end := i+j
-                            if line[i+5] != ',' {
-                                if line[i+6] != ',' {
-                                    if line[i+7] != ',' {
-                                        continue
-                                    }
-                                }
-                            }
- 
-                            if line[i+6] != ',' || line[i+6] <= '0' || line[i+6] >= '9' {
-                                if line[i+7] != ',' || line[i+7] <= '0' || line[i+7] >= '9' {
-                                    if line[i+8] <= '0' || line[i+8] >= '9' {
-                                        
-                                    }
-                                }
-                            }
-
-                            append(&mul_strs, line[begin:end])
-                            fmt.println(mul_strs[indx])
-                            indx += 1
-
-                        }
+                    if i+j >= n {
+                        continue
                     }
+                    if line[i+j] == ')' {
+                        dif := j
+                        if line[i+5] != ',' {
+                            if line[i+6] != ',' {
+                                if line[i+7] != ',' {
+                                    continue
+                                }
+                            }
+                        }
+
+                        if line[i+6] != ',' && line[i+6] <= '0' && line[i+6] >= '9' {
+                            if line[i+7] != ',' && line[i+7] <= '0' && line[i+7] >= '9' {
+                                if line[i+8] <= '0' && line[i+8] >= '9' {
+                                    continue
+                                }
+                            }
+                        }
+                        start := i+4
+                        end := i+j
+                        append(&muls, line[start:end])
+                        //fmt.println(indx, muls[indx])
+                        indx += 1
+                    }
+                }
             }
         }
     }
-     
+
+   ct, one, two, total: int
+    for str in muls { // 87,556,383 too low. 173,573,173 too high
+        mul_str := str
+        tmp, ok := strings.split_iterator(&mul_str, ",")
+        //fmt.printf("%s ", tmp)
+        one = strconv.atoi(tmp)
+        fmt.printf("%i ", one)
+
+        tmp, ok = strings.split_iterator(&mul_str, ",")
+        //fmt.println(tmp)
+        two = strconv.atoi(tmp)
+        fmt.println(two)
+        mul:= one*two
+        total += mul
+    }
+    fmt.println(total)
 }
