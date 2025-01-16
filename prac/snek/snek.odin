@@ -9,8 +9,9 @@ GRID_SIZE :: 20
 CELL_SIZE :: 16
 CANVAS_SIZE :: GRID_SIZE*CELL_SIZE
 TICK_RATE :: 0.0325
+MAX_SNEK_LENGTH :: GRID_SIZE*GRID_SIZE
 
-Vec2i :: [2] int
+Vec2i :: [2] f32
 
 move_snek: Vec2i
 snek_head_pos: Vec2i
@@ -28,8 +29,8 @@ main :: proc() {
     camera := rl.Camera2D { zoom = f32(WINDOW_SIZE)/CANVAS_SIZE }
 
     head_rect:= rl.Rectangle {
-        f32(snek_head_pos.x*CELL_SIZE),
-        f32(snek_head_pos.y*CELL_SIZE),
+        snek_head_pos.x*CELL_SIZE,
+        snek_head_pos.y*CELL_SIZE,
         CELL_SIZE, CELL_SIZE
     }
 
@@ -40,31 +41,31 @@ main :: proc() {
         if tick_timer <= 0 {
 
             if rl.IsKeyDown(.UP) {
-                if move_snek == { 0, 1 } {
+                if move_snek == { 0, .25 } {
                     // do nothing.
                 } else {
-                move_snek = { 0, -1 }
+                move_snek = { 0, -.25 }
                 player_start = true
                 }
             } else if rl.IsKeyDown(.DOWN) { 
-                if move_snek == { 0, -1 } { 
+                if move_snek == { 0, -.25 } { 
                     // do nothing.
                 } else { 
-                move_snek = { 0, 1 }
+                move_snek = { 0, .25 }
                 player_start = true
                 } 
             } else if rl.IsKeyDown(.LEFT) {
-                if move_snek == { 1, 0 } {
+                if move_snek == { .25, 0 } {
                     // do nothing.
                 } else {
-                    move_snek = { -1, 0 }
+                    move_snek = { -.25, 0 }
                     player_start = true
                 }
             } else if rl.IsKeyDown(.RIGHT) {
-                if move_snek == { -1, 0 } {
+                if move_snek == { -.25, 0 } {
                     // do nothing.
                 } else {
-                    move_snek = { 1, 0 }
+                    move_snek = { .25, 0 }
                     player_start = true
                 }
             }
@@ -72,25 +73,18 @@ main :: proc() {
             snek_head_pos += move_snek
         }
 
-        if player_start {
-            head_rect = rl.Rectangle {
-                f32(snek_head_pos.x*CELL_SIZE) /4,
-                f32(snek_head_pos.y*CELL_SIZE) /4,
-                CELL_SIZE, CELL_SIZE
-            }
-        } else {
             head_rect = rl.Rectangle {
                 f32(snek_head_pos.x*CELL_SIZE),
                 f32(snek_head_pos.y*CELL_SIZE),
                 CELL_SIZE, CELL_SIZE
             }
-        }
+    
 
         rl.BeginDrawing()
-        rl.ClearBackground({ 123, 24, 54, 255 })
+        rl.ClearBackground({ 0, 128, 200, 255 })
         rl.BeginMode2D(camera)
 
-        rl.DrawRectangleRec(head_rect, { 43, 186, 76, 255 })
+        rl.DrawRectangleRec(head_rect, { 190, 80, 0, 255 })
 
         rl.EndMode2D()
         rl.EndDrawing()
