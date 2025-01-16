@@ -1,0 +1,33 @@
+-flysand7
+    Nov 2024
+
+I remember I’ve asked about this about a year ago on discord and gingerBill had answered my question, but since then I’ve forgotten the exact answer.
+
+In the Odin’s core library there are a lot of places where objects are being created or initialized. From what I’ve observed the naming conventions come in pairs:
+
+    new / free
+    make / delete
+    create / destroy
+    init / ???
+
+Can someone clarify the exact differences between these pairs of naming conventions for procedures?
+
+-------------------------------------------------------------------------------------------------------------------
+
+-gingerBill
+    BDFL
+    Nov 2024
+
+My conventions are not really about the pairs. Except for the attributes @(init) and @(fini), procedures do not necessarily have pairs.
+
+    new allocates a value of a certain type, not necessarily “constructed”
+    free deallocates/frees a rawptr that was previously allocated
+    make allocates the underlying data for a built-in data type and 
+    returns the result as an aggregate record (e.g. slice, dynamic array, map)
+    delete deallocates/frees the underlying data for a built-in data type (e.g. slice, dynamic array, map, string)
+    create will allocate and construct a certain type, and return a pointer
+    init will construct a certain value passed by pointer to it
+    destroy will deallocate and/or deconstruct a certain value passed to it (by value or by pointer)
+
+So init is usually paired with destroy too.
+
