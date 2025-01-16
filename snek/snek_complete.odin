@@ -142,7 +142,7 @@ main :: proc() {
         }
 
         rl.BeginDrawing()
-        rl.ClearBackground({1, 1, 1, 255})
+        rl.ClearBackground({20, 20, 20, 255})
         rl.BeginMode2D(camera)
 
         rl.DrawTextureV(food_sprite, {f32(food_pos.x*CELL_SIZE), f32(food_pos.y*CELL_SIZE)}, rl.WHITE)
