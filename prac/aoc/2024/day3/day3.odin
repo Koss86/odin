@@ -51,13 +51,13 @@ main :: proc() {
                         str := line[start:end]
                         tmp1, ok := strings.split_iterator(&str, ",")
                         tmp2, ok2 := strings.split_iterator(&str, ",")
-                        if ct < 10 {
-                            fmt.printf("%v %v ", tmp1, tmp2)
-                            ct += 1
-                        } else {
-                            fmt.println()
-                            ct = 0
-                        }
+                        //if ct < 10 {
+                        //    fmt.printf("%v %v ", tmp1, tmp2)
+                        //    ct += 1
+                        //} else {
+                        //    fmt.println()
+                        //    ct = 0
+                        //}
 
                         if line[i+(j-1)] == ')' {
 
