@@ -14,4 +14,4 @@ X 2. Draw snake head on a grid.
 13. End of Tutorial.
 -----------
 Improvements:
-- Dont allow to backtrack.
+X- Dont allow to backtrack.
