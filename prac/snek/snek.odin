@@ -5,26 +5,34 @@ import rl "vendor:raylib"
 WINDOW_SIZE :: 920
 GRID_WIDTH :: 20
 CELL_SIZE :: 16
+MAX_SNEK_LENG :: GRID_WIDTH*GRID_WIDTH
 CANVAS_SIZE :: GRID_WIDTH*CELL_SIZE
-TICK_RATE :: 0.12
-MAX_SNEK_LENGTH :: GRID_WIDTH*GRID_WIDTH
+TICK_RATE :: 0.125
 
 Vec2i :: [2] int
 
-snek:[MAX_SNEK_LENGTH] Vec2i
+snek_leng: int
 move_snek: Vec2i
 food_pos: Vec2i
-tick_timer : f32 = TICK_RATE
-snek_leng: int
 game_over: bool
+tick_timer: f32 = TICK_RATE
+snek: [MAX_SNEK_LENG] Vec2i
 
-main :: proc() {
+main :: proc () {
 
     rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "SNEK")
     rl.SetConfigFlags({.VSYNC_HINT})
-    game_setup()
+
     camera := rl.Camera2D {
-        zoom = f32(WINDOW_SIZE) / CANVAS_SIZE }
+        zoom = f32(WINDOW_SIZE) / CANVAS_SIZE
+    }
+
+    food_sprite := rl.LoadTexture("apple.png")
+    head_sprite := rl.LoadTexture("head.png")
+    body_sprite := rl.LoadTexture("body.png")
+    tail_sprite := rl.LoadTexture("tail.png")
+
+    game_state()
 
     for !rl.WindowShouldClose() {
 
@@ -32,14 +40,14 @@ main :: proc() {
             if move_snek == { 0, 1 } {
 
             } else {
-                move_snek = { 0, -1 }
+                move_snek = { 0, -1}
             }
         }
         if rl.IsKeyDown(.DOWN) {
             if move_snek == { 0, -1 } {
 
             } else {
-                move_snek = { 0, 1 }
+                move_snek = { 0, 1}
             }
         }
         if rl.IsKeyDown(.LEFT) {
@@ -56,10 +64,11 @@ main :: proc() {
                 move_snek = { 1, 0 }
             }
         }
-
+        
         tick_timer -= rl.GetFrameTime()
 
         if tick_timer <= 0 {
+
             nxt_pos := snek[0]
             snek[0] += move_snek
 
@@ -67,13 +76,13 @@ main :: proc() {
                snek[0].x >= GRID_WIDTH || snek[0].y >= GRID_WIDTH {
 
                 game_over = true
-               }
-            
+            }
+
             if snek[0] == food_pos {
                 place_food()
                 snek_leng += 1
             }
-
+            
             for i in 1..<snek_leng {
                 cur_pos := snek[i]
                 snek[i] = nxt_pos
@@ -84,55 +93,56 @@ main :: proc() {
             }
 
             if game_over {
-                rl.DrawText("Game Over", 250, 90, 50, rl.RED)
+                rl.DrawText("Game Over", 250, 150, 80, rl.RED)
                 if rl.IsKeyPressed(.ENTER) {
-                    game_setup()
+                    game_state()
                 }
             } else {
-                tick_timer = TICK_RATE + tick_timer
- 
+               tick_timer = TICK_RATE + tick_timer 
             }
+            
         }
 
         rl.ClearBackground(rl.BLACK)
         rl.BeginDrawing()
         rl.BeginMode2D(camera)
 
-        food_rect := rl.Rectangle {
-            f32(food_pos.x)*CELL_SIZE,
-            f32(food_pos.y)*CELL_SIZE,
-            CELL_SIZE, CELL_SIZE }
-
-        rl.DrawRectangleRec(food_rect, rl.RED)
-
         for i in 0..<snek_leng {
 
-            snek_part_rect := rl.Rectangle {
-                f32(snek[i].x)*CELL_SIZE,
-                f32(snek[i].y)*CELL_SIZE,
-                CELL_SIZE, CELL_SIZE }
-
-            rl.DrawRectangleRec(snek_part_rect, rl.GREEN)
+            part_sprite := body_sprite
+            dir : Vec2i
+            if i == 0 {
+                part_sprite = head_sprite
+                dir = snek[i] - snek[i + 1]
+            } else if i == snek_leng-1 {
+                part_sprite = tail_sprite
+                dir = snek[i-1] - snek[i]
+            }
+            
+            rl.DrawTextureV(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE , rl.WHITE)
         }
+        
+        rl.DrawTextureV(food_sprite, {f32(food_pos.x), f32(food_pos.y)}*CELL_SIZE , rl.WHITE)
 
         free_all(context.temp_allocator)
-        rl.EndMode2D()
         rl.EndDrawing()
+        rl.EndMode2D()
     }
     rl.CloseWindow()
 }
 
-game_setup :: proc() {
+game_state :: proc() {
 
-    snek[0] = { GRID_WIDTH / 2, 5 }
+    move_snek = { 0, 1 }
+    snek = {}
+    snek[0] = { GRID_WIDTH /2, 5 }
     snek[1] = snek[0] - { 0, 1 }
     snek[2] = snek[0] - { 0, 2 }
-    move_snek = { 0, 1 }
     snek_leng = 3
     game_over = false
+    tick_timer = TICK_RATE
     place_food()
 }
-
 place_food :: proc() {
 
     occupied: [GRID_WIDTH] [GRID_WIDTH] bool
@@ -140,9 +150,8 @@ place_food :: proc() {
     for i in 0..<snek_leng {
         occupied [snek[i].x] [snek[i].y] = true
     }
-
-    free_cells := make( [dynamic] Vec2i, context.temp_allocator )
     
+    free_cells := make([dynamic] Vec2i, context.temp_allocator)
     for x in 0..<GRID_WIDTH {
         for y in 0..<GRID_WIDTH {
             if !occupied[x][y] {
@@ -150,6 +159,6 @@ place_food :: proc() {
             }
         }
     }
-    rand := rl.GetRandomValue(0, i32(len(free_cells))-1)
-    food_pos = free_cells [rand]
+    rand := rl.GetRandomValue(0, i32(len(free_cells)-1))
+    food_pos = free_cells[rand]
 }
