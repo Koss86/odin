@@ -69,6 +69,11 @@ main :: proc () {
                 move_snek = { 1, 0 }
             }
         }
+        if rl.IsKeyDown(.SPACE) {
+            if rl.IsKeyPressed(.SPACE) {
+                
+            }
+        }
         
         tick_timer -= rl.GetFrameTime()
 
@@ -132,8 +137,19 @@ main :: proc () {
             
             rot := math.atan2(f32(dir.y), f32(dir.x) * math.DEG_PER_RAD)
 
-            rl.DrawTextureEx(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE, rot, 1, rl.WHITE)
-            //rl.DrawTextureV(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE , rl.WHITE)
+            source := rl.Rectangle {
+                0, 0,
+                f32(part_sprite.width),
+                f32(part_sprite.height),
+            }
+            dest := rl.Rectangle {
+                f32(snek[i].x)*CELL_SIZE + 0.5 * CELL_SIZE,
+                f32(snek[i].y)*CELL_SIZE + 0.5 * CELL_SIZE,
+                CELL_SIZE, CELL_SIZE,
+
+            }
+            rl.DrawTexturePro(part_sprite, source, dest, {CELL_SIZE, CELL_SIZE} * 0.5, rot, rl.WHITE)
+            //rl.DrawTextureEx(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE, rot, 1, rl.WHITE)
         }
         
         rl.DrawTextureV(food_sprite, {f32(food_pos.x), f32(food_pos.y)}*CELL_SIZE , rl.WHITE)
@@ -142,6 +158,8 @@ main :: proc () {
         rl.EndDrawing()
         rl.EndMode2D()
     }
+
+    rl.UnloadTexture(head_sprite)
     rl.CloseWindow()
 }
 
@@ -149,7 +167,7 @@ game_state :: proc() {
 
     move_snek = { 0, 1 }
     snek = {}
-    snek[0] = { GRID_WIDTH /2, 5 }
+    snek[0] = { GRID_WIDTH / 2, 5 }
     snek[1] = snek[0] - { 0, 1 }
     snek[2] = snek[0] - { 0, 2 }
     snek_leng = 3
