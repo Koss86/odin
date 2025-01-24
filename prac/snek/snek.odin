@@ -1,6 +1,7 @@
 package snek
 
 import rl "vendor:raylib"
+import "core:math"
 
 WINDOW_SIZE :: 920
 GRID_WIDTH :: 20
@@ -13,6 +14,9 @@ Vec2i :: [2] int
 
 snek_leng: int
 move_snek: Vec2i
+prev_move: Vec2i
+prev3rd_move: Vec2i
+dir: Vec2i
 food_pos: Vec2i
 game_over: bool
 tick_timer: f32 = TICK_RATE
@@ -31,6 +35,7 @@ main :: proc () {
     head_sprite := rl.LoadTexture("head.png")
     body_sprite := rl.LoadTexture("body.png")
     tail_sprite := rl.LoadTexture("tail.png")
+    corner_sprite := rl.LoadTexture("corner.png")
 
     game_state()
 
@@ -94,6 +99,7 @@ main :: proc () {
 
             if game_over {
                 rl.DrawText("Game Over", 250, 150, 80, rl.RED)
+                rl.DrawText("Press Enter to play again.", 300, 220, 20, {150, 150, 150, 255})
                 if rl.IsKeyPressed(.ENTER) {
                     game_state()
                 }
@@ -110,16 +116,24 @@ main :: proc () {
         for i in 0..<snek_leng {
 
             part_sprite := body_sprite
-            dir : Vec2i
             if i == 0 {
                 part_sprite = head_sprite
                 dir = snek[i] - snek[i + 1]
             } else if i == snek_leng-1 {
                 part_sprite = tail_sprite
                 dir = snek[i-1] - snek[i]
+            } else {
+                dir = snek[i] - snek[i + 1]
+                next_dir := snek[i - 1] - snek[i]
+                if dir != next_dir {
+                    part_sprite = corner_sprite
+                }
             }
             
-            rl.DrawTextureV(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE , rl.WHITE)
+            rot := math.atan2(f32(dir.y), f32(dir.x) * math.DEG_PER_RAD)
+
+            rl.DrawTextureEx(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE, rot, 1, rl.WHITE)
+            //rl.DrawTextureV(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE , rl.WHITE)
         }
         
         rl.DrawTextureV(food_sprite, {f32(food_pos.x), f32(food_pos.y)}*CELL_SIZE , rl.WHITE)
