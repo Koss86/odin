@@ -2,6 +2,7 @@ package snek
 
 import rl "vendor:raylib"
 import "core:math"
+import "core:fmt"
 
 WINDOW_SIZE :: 920
 GRID_WIDTH :: 20
@@ -23,7 +24,7 @@ tick_timer: f32 = TICK_RATE
 snek: [MAX_SNEK_LENG] Vec2i
 
 main :: proc () {
-
+    rot : f32
     rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "SNEK")
     rl.SetConfigFlags({.VSYNC_HINT})
 
@@ -111,13 +112,15 @@ main :: proc () {
             } else {
                tick_timer = TICK_RATE + tick_timer 
             }
-            
+            fmt.println(rot)
         }
 
         rl.ClearBackground(rl.BLACK)
         rl.BeginDrawing()
         rl.BeginMode2D(camera)
-
+        
+        rl.DrawTextureV(food_sprite, {f32(food_pos.x), f32(food_pos.y)}*CELL_SIZE , rl.WHITE)
+        
         for i in 0..<snek_leng {
 
             part_sprite := body_sprite
@@ -128,32 +131,33 @@ main :: proc () {
                 part_sprite = tail_sprite
                 dir = snek[i-1] - snek[i]
             } else {
-                dir = snek[i] - snek[i + 1]
-                next_dir := snek[i - 1] - snek[i]
+                next_dir := snek[i] - snek[i + 1]
+                dir = snek[i - 1] - snek[i]
                 if dir != next_dir {
                     part_sprite = corner_sprite
                 }
             }
             
-            rot := math.atan2(f32(dir.y), f32(dir.x) * math.DEG_PER_RAD)
+            rot = math.atan2(f32(dir.y), f32(dir.x)) * math.DEG_PER_RAD
 
             source := rl.Rectangle {
                 0, 0,
                 f32(part_sprite.width),
-                f32(part_sprite.height),
+                f32(part_sprite.height)
             }
             dest := rl.Rectangle {
                 f32(snek[i].x)*CELL_SIZE + 0.5 * CELL_SIZE,
                 f32(snek[i].y)*CELL_SIZE + 0.5 * CELL_SIZE,
-                CELL_SIZE, CELL_SIZE,
+                CELL_SIZE, CELL_SIZE
 
             }
+
             rl.DrawTexturePro(part_sprite, source, dest, {CELL_SIZE, CELL_SIZE} * 0.5, rot, rl.WHITE)
-            //rl.DrawTextureEx(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE, rot, 1, rl.WHITE)
+            fmt.println(rot)
+            //rl.DrawTextureEx(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE, rot, 1, rl.RED)
         }
         
-        rl.DrawTextureV(food_sprite, {f32(food_pos.x), f32(food_pos.y)}*CELL_SIZE , rl.WHITE)
-
+        
         free_all(context.temp_allocator)
         rl.EndDrawing()
         rl.EndMode2D()
