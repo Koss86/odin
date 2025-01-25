@@ -15,16 +15,17 @@ Vec2i :: [2] int
 
 snek_leng: int
 move_snek: Vec2i
-prev_move: Vec2i
-prev3rd_move: Vec2i
+rot: f32
+prev_rot: f32
 dir: Vec2i
+prev_dir: Vec2i
 food_pos: Vec2i
 game_over: bool
 tick_timer: f32 = TICK_RATE
 snek: [MAX_SNEK_LENG] Vec2i
 
 main :: proc () {
-    rot : f32
+    
     rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "SNEK")
     rl.SetConfigFlags({.VSYNC_HINT})
 
@@ -79,7 +80,7 @@ main :: proc () {
         tick_timer -= rl.GetFrameTime()
 
         if tick_timer <= 0 {
-
+            
             nxt_pos := snek[0]
             snek[0] += move_snek
 
@@ -115,7 +116,7 @@ main :: proc () {
             fmt.println(rot)
         }
 
-        rl.ClearBackground(rl.BLACK)
+        rl.ClearBackground({3, 119, 252, 255})
         rl.BeginDrawing()
         rl.BeginMode2D(camera)
         
@@ -131,19 +132,30 @@ main :: proc () {
                 part_sprite = tail_sprite
                 dir = snek[i-1] - snek[i]
             } else {
-                next_dir := snek[i] - snek[i + 1]
+                prev_dir = snek[i] - snek[i + 1]
                 dir = snek[i - 1] - snek[i]
-                if dir != next_dir {
+                if dir != prev_dir {
                     part_sprite = corner_sprite
                 }
             }
-            
+            prev_rot = rot
             rot = math.atan2(f32(dir.y), f32(dir.x)) * math.DEG_PER_RAD
 
             source := rl.Rectangle {
                 0, 0,
                 f32(part_sprite.width),
                 f32(part_sprite.height)
+            }
+
+            if i != 0 && i != snek_leng-1 {
+                if prev_rot == 0 && rot == 90 ||
+                   prev_rot == -90 && rot == 0 {
+                    source = rl.Rectangle {
+                        0, 0,
+                        f32(part_sprite.width)* -1.0,
+                        f32(part_sprite.height) 
+                    }
+                }
             }
             dest := rl.Rectangle {
                 f32(snek[i].x)*CELL_SIZE + 0.5 * CELL_SIZE,
@@ -152,7 +164,7 @@ main :: proc () {
 
             }
 
-            rl.DrawTexturePro(part_sprite, source, dest, {CELL_SIZE, CELL_SIZE} * 0.5, rot, rl.WHITE)
+            rl.DrawTexturePro(part_sprite, source, dest, {CELL_SIZE, CELL_SIZE} * 0.5, rot, rl.BLUE)
             fmt.println(rot)
             //rl.DrawTextureEx(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE, rot, 1, rl.RED)
         }
