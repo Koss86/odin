@@ -160,7 +160,6 @@ main :: proc () {
             }
 
             if part_sprite == corner_sprite {
-
                 if dir == Up && prev_dir == Left ||
                     dir == Right && prev_dir == Up ||
                     dir == Down && prev_dir == Right ||
@@ -181,7 +180,7 @@ main :: proc () {
 
             }
 
-            rl.DrawTexturePro(part_sprite, source, dest, {CELL_SIZE, CELL_SIZE} * 0.5, rot, rl.RED)
+            rl.DrawTexturePro(part_sprite, source, dest, {CELL_SIZE, CELL_SIZE} * 0.5, rot, rl.WHITE)
             //rl.DrawTextureEx(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE, rot, 1, rl.RED)
         }
         
@@ -231,6 +230,6 @@ place_food :: proc() {
         }
     }
 
-    rand := rl.GetRandomValue(0, i32(len(free_cells)-1))
+    rand :i32= rl.GetRandomValue(0, i32(len(free_cells)-1))
     food_pos = free_cells[rand]
 }
