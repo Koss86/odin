@@ -26,9 +26,7 @@ main :: proc() {
     tick_timer: f32 = TICK_RATE
     rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Snek")
     rl.SetConfigFlags({.VSYNC_HINT})
-    rl.SetTargetFPS(60)
-    fmt.println(Up)
-    game_state()
+
     camera := rl.Camera2D {
         zoom = f32(WINDOW_SIZE)/CANVAS_SIZE
     }
