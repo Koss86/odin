@@ -12,6 +12,11 @@ CANVAS_SIZE :: GRID_WIDTH*CELL_SIZE
 SNEK_MAX_LENG :: GRID_WIDTH*GRID_WIDTH
 
 Vec2 :: [2] int
+
+Up :Vec2: { 0, -1 }
+Down :Vec2: { 0, 1 }
+Left :Vec2: { -1, 0 }
+Right :Vec2: { 1, 0 }
 move_snek: Vec2
 snek_leng: int
 food_pos: Vec2
@@ -22,7 +27,7 @@ main :: proc() {
     rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Snek")
     rl.SetConfigFlags({.VSYNC_HINT})
     rl.SetTargetFPS(60)
-
+    fmt.println(Up)
     game_state()
     camera := rl.Camera2D {
         zoom = f32(WINDOW_SIZE)/CANVAS_SIZE
@@ -30,28 +35,20 @@ main :: proc() {
     for !rl.WindowShouldClose() {
 
         if rl.IsKeyDown(.UP) {
-            if move_snek == { 0, 1 } {
-
-            } else {
-                move_snek = { 0, -1 }
+            if move_snek != Down {
+                move_snek = Up
             }
         } else if rl.IsKeyDown(.DOWN) {
-            if move_snek == { 0, -1 } {
-
-            } else {
-                move_snek = { 0, 1 }
+            if move_snek != Up {
+                move_snek = Down
             }
         } else if rl.IsKeyDown(.LEFT) {
-            if move_snek == { 1, 0} {
-
-            } else {
-                move_snek = { -1, 0 }
+            if move_snek != Right {
+                move_snek = Left
             }
         } else if rl.IsKeyDown(.RIGHT) {
-            if move_snek == { -1, 0 } {
-
-            } else {
-                move_snek = { 1, 0 }
+            if move_snek != Left {
+                move_snek = Right
             }
         }
 
@@ -92,10 +89,6 @@ main :: proc() {
             rl.DrawRectangleRec(rect, rl.GREEN)
         }
         
-
-
-
-
 
         rl.EndMode2D()
         rl.EndDrawing()
