@@ -74,6 +74,14 @@ main :: proc() {
         rl.BeginDrawing()
         rl.BeginMode2D(camera)
 
+        food_rect := rl.Rectangle {
+            f32(food_pos.x) * CELL_SIZE,
+            f32(food_pos.y) * CELL_SIZE,
+            CELL_SIZE, CELL_SIZE
+        }
+
+        rl.DrawRectangleRec(food_rect, rl.RED)
+
         for i in 0..<snek_leng {
             rect:= rl.Rectangle {
                 f32(snek[i].x)* CELL_SIZE,
@@ -102,6 +110,7 @@ game_state :: proc() {
     snek[1] = snek[0] - { 0, 1 }
     snek[2] = snek[0] - { 0, 2 }
     snek_leng = 3
+    place_food()
 }
 
 place_food :: proc() {
@@ -121,4 +130,6 @@ place_food :: proc() {
             }
         }
     }
+    rand := rl.GetRandomValue(0, i32(len(free_cells))-1)
+    food_pos = free_cells[rand]
 }
