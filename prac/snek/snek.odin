@@ -65,47 +65,54 @@ main :: proc() {
         tick_timer -= rl.GetFrameTime()
 
         if tick_timer <= 0 {
+
             nxt_pos := snek[0]
             snek[0] += move_snek
 
-            if snek[0] == food_pos {
-                place_food()
-                snek_leng += 1
-            }
             if snek[0].x < 0 || snek[0].x >= GRID_WIDTH ||
                 snek[0].y < 0 || snek[0].y >= GRID_WIDTH {
+
                     game_over = true
                 }
 
+            if snek[0] == food_pos {
+
+                place_food()
+                snek_leng += 1
+            }
+            
             for i in 1..<snek_leng {
+
                 cur_pos := snek[i]
                 snek[i] = nxt_pos
                 nxt_pos = cur_pos
+
                 if snek[0] == cur_pos {
                     game_over = true
                 }
             }
 
             if game_over {
+
                 rl.DrawText("Game Over", 250, 150, 80, rl.RED)
                 rl.DrawText("Press Enter to play again.", 300, 220, 20, {150, 150, 150, 255})
                 if rl.IsKeyPressed(.ENTER) {
                     game_state()
                 }
             } else {
+
                 tick_timer = TICK_RATE + tick_timer
             }
         }
 
-        rl.ClearBackground({33, 111, 222, 255})
         rl.BeginDrawing()
+        rl.ClearBackground({33, 111, 222, 255})
         rl.BeginMode2D(camera)
 
         rl.DrawTextureV(food_sprite, {f32(food_pos.x), f32(food_pos.y)} * CELL_SIZE, rl.WHITE)
 
-        part_sprite := body_sprite
-
         for i in 0..<snek_leng {
+            part_sprite := body_sprite
 
             if i == 0 {
 
@@ -118,24 +125,34 @@ main :: proc() {
                 cur_dir = snek[i-1] - snek[i]
             } else {
                 cur_dir = snek[i-1] - snek[i]
-
+                prev_dir = snek[i] - snek[i+1]
+                if cur_dir != prev_dir {
+                    part_sprite = corner_sprite
+                }
             }
              
+            rot := math.atan2(f32(cur_dir.y), f32(cur_dir.x)) * math.DEG_PER_RAD
 
-            rect:= rl.Rectangle {
-                f32(snek[i].x)* CELL_SIZE,
-                f32(snek[i].y )* CELL_SIZE,
-                CELL_SIZE, CELL_SIZE
+            source := rl.Rectangle {
+                0, 0,
+                f32(part_sprite.width),
+                f32(part_sprite.height)
             }
-            //rl.DrawTextureEx()
-            //rl.DrawTexturePro()
-            rl.DrawRectangleRec(rect, rl.GREEN)
+
+            dest := rl.Rectangle {
+                f32(snek[i].x) * CELL_SIZE + 0.5 * CELL_SIZE,
+                f32(snek[i].y) * CELL_SIZE + 0.5 * CELL_SIZE,
+                CELL_SIZE, CELL_SIZE
+
+            }
+            //rl.DrawTextureEx(part_sprite, {f32(snek[i].x), f32(snek[i].y)}*CELL_SIZE, rot, 1, rl.WHITE)
+            rl.DrawTexturePro(part_sprite, source, dest, {CELL_SIZE, CELL_SIZE} * 0.5, rot, rl.WHITE)
         }
         
 
+        free_all(context.temp_allocator)
         rl.EndMode2D()
         rl.EndDrawing()
-        free_all(context.temp_allocator)
     }
 
     rl.CloseWindow()
