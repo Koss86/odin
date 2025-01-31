@@ -4,81 +4,14 @@ import rl "vendor:raylib"
 import "core:math"
 import "core:math/linalg"
 
-SCREEN_SIZE :: 320
-PADDLE_WIDTH :: 50
-PADDLE_HEIGHT :: 6
-PADDLE_POS_Y :: 260
-PADDLE_SPEED :: 200
-BALL_SPEED :: 260
-BALL_RAD :: 4
-BALL_START_Y :: SCREEN_SIZE/2
-
-paddle_pos_x: f32
-ball_pos: rl.Vector2
-ball_dir: rl.Vector2
-usr_started: bool
 
 main :: proc() {
-    rl.SetConfigFlags({.VSYNC_HINT})
-    rl.InitWindow(960, 960, "Breakout!")
-    rl.SetTargetFPS(100)
-    game_state()
-
-    camera := rl.Camera2D {
-        zoom = f32(rl.GetScreenHeight()/SCREEN_SIZE)
-    }
+    rl.InitWindow(1280, 1280, "Breakout!")
 
     for !rl.WindowShouldClose() {
-        
-        dt: f32
-
-        if !usr_started {
-            ball_pos = {
-                SCREEN_SIZE/2 + f32(math.cos(rl.GetTime())*SCREEN_SIZE/2.5),
-                BALL_START_Y
-            }
-            if rl.IsKeyPressed(.SPACE) {
-                paddle_mid := rl.Vector2 { paddle_pos_x + PADDLE_WIDTH/2, PADDLE_POS_Y }
-                ball_to_pad := paddle_mid - ball_pos
-                ball_dir = linalg.normalize0(ball_to_pad)
-                usr_started = true
-            } 
-        } else {
-            dt = rl.GetFrameTime()
-        }
-        paddle_move_vel: f32
-
-        if rl.IsKeyDown(.LEFT) {
-            paddle_move_vel -= PADDLE_SPEED
-        }
-        if rl.IsKeyDown(.RIGHT) {
-            paddle_move_vel += PADDLE_SPEED
-        }
-
-       
-        ball_pos += ball_dir * BALL_SPEED * dt
-        paddle_pos_x += paddle_move_vel * dt
-        paddle_pos_x = clamp(paddle_pos_x, 0, SCREEN_SIZE - PADDLE_WIDTH)
-        paddle_rect := rl.Rectangle {
-            paddle_pos_x, PADDLE_POS_Y,
-            PADDLE_WIDTH, PADDLE_HEIGHT
-        }
-
         rl.BeginDrawing()
-        rl.ClearBackground({150, 190, 200, 255})
-        rl.BeginMode2D(camera)
 
-        rl.DrawRectangleRec(paddle_rect, {50, 150, 90, 255})
-        rl.DrawCircleV(ball_pos, BALL_RAD, rl.RED)
-
-        rl.EndMode2D()
         rl.EndDrawing()
     }
     rl.CloseWindow()
-}
-
-game_state :: proc() {
-    paddle_pos_x = (SCREEN_SIZE/2) - (PADDLE_WIDTH/2)
-    ball_pos = {SCREEN_SIZE/2, BALL_START_Y}
-    usr_started = false
 }
