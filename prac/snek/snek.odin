@@ -144,13 +144,13 @@ game_state :: proc() {
 place_food :: proc() {
     occupied: [GRID_WIDTH] [GRID_WIDTH] bool
     for i in 0..<snek_leng {
-        occupied [snek[i].x] [snek[i].y] = true
+        occupied [i32(snek[i].x)] [i32(snek[i].y)] = true
     }
     free_cells := make([dynamic] Vec2, context.temp_allocator)
     for x in 0..<GRID_WIDTH {
         for y in 0..<GRID_WIDTH {
             if !occupied[x][y] {
-                append(&free_cells, Vec2 { x, y })
+                append(&free_cells, Vec2 { f32(x), f32(y) })
             }
         }
     }
