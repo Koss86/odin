@@ -86,37 +86,30 @@ main :: proc() {
             rl.BeginMode2D(camera)
             rl.ClearBackground(rl.BLACK)
 
-            part_sprite := body_sprite
-            src := rl.Rectangle {
-                0, 0,
-                f32(part_sprite.width),
-                f32(part_sprite.height)
-            }
+            
+            
             for i in 0..<snek_leng {
+                part_sprite := body_sprite
+                src := rl.Rectangle {
+                    0, 0,
+                    f32(part_sprite.width),
+                    f32(part_sprite.height)
+                }
                 if i == 0 {
-
                     part_sprite = head_sprite
                     cur_dir = snek[i] - snek[i+1]
-
                 } else if i == snek_leng-1 {
-
                     part_sprite = tail_sprite
                     cur_dir = snek[i-1] - snek[i]
-
                 } else {
-
                     cur_dir = snek[i-1] - snek[i]
                     prev_dir = snek[i] - snek[i+1]
-
                     if cur_dir != prev_dir {
-
                         part_sprite = bend_sprite
-                        
                         if cur_dir == Left && prev_dir == Down ||
                             cur_dir == Up && prev_dir == Left ||
                             cur_dir == Right && prev_dir == Up ||
                             cur_dir == Down && prev_dir == Right {
-
                             src = rl.Rectangle {
                                 0, 0,
                                 f32(part_sprite.width),
@@ -133,7 +126,6 @@ main :: proc() {
                 }
                 rl.DrawTexturePro(part_sprite, src, dest, { CELL_SIZE, CELL_SIZE } * 0.5, rot, rl.WHITE)
             }
-
             rl.EndMode2D()
         rl.EndDrawing()
     }
@@ -148,4 +140,20 @@ game_state :: proc() {
     snek_leng = 3
     game_over = false
     tick_timer = TICK_RATE
+}
+place_food :: proc() {
+    occupied: [GRID_WIDTH] [GRID_WIDTH] bool
+    for i in 0..<snek_leng {
+        occupied [snek[i].x] [snek[i].y] = true
+    }
+    free_cells := make([dynamic] Vec2, context.temp_allocator)
+    for x in 0..<GRID_WIDTH {
+        for y in 0..<GRID_WIDTH {
+            if !occupied[x][y] {
+                append(&free_cells, Vec2 { x, y })
+            }
+        }
+    }
+    rand := rl.GetRandomValue(0, i32(len(free_cells))-1)
+    food_pos = free_cells[rand]
 }
