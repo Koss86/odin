@@ -66,10 +66,10 @@ prune_list :: proc(list: [] Vec2i) -> [] Vec2i {
         for j in 0..<leng {
             if i == 0 {
                 append(&pruned, tmp)
-            }
-            if !if_found(pruned[:], tmp) {
+            } else if !if_found(pruned[:], tmp) {
                 append(&pruned, tmp)
             }
+            
         }
     }
     return pruned[:]
