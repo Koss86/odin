@@ -41,17 +41,7 @@ main :: proc() {
 
     pruned := prune_list(santa_visits[:])
     leng = len(pruned)
-    fmt.println(leng)
-    /*
-    leng = len(santa_visits)
-    repeats : [leng] [leng] bool
-
-    for x in 0..<leng {
-        for y in 0..<leng {
-            
-        }
-    }
-        */
+    fmt.printf("%v Houses got at lease one present!\n", leng+1)
 }
 
 prune_list :: proc(list: [] Vec2i) -> [] Vec2i {
@@ -63,13 +53,10 @@ prune_list :: proc(list: [] Vec2i) -> [] Vec2i {
     for i in 0..<leng {
         tmp := list[i]
         counter: int = 0
-        for j in 0..<leng {
-            if i == 0 {
-                append(&pruned, tmp)
-            } else if !if_found(pruned[:], tmp) {
-                append(&pruned, tmp)
-            }
-            
+        if i == 0 {
+            append(&pruned, tmp)
+        } else if !if_found(pruned[:], tmp) {
+            append(&pruned, tmp)
         }
     }
     return pruned[:]
