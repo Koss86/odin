@@ -2,16 +2,18 @@ package day3
 import "core:fmt"
 import "core:os"
 import strs "core:strings"
-Vec2i :: [2] int
-UP :: Vec2i  { 0, 1 }
-DOWN :: Vec2i { 0, -1 }
-LEFT :: Vec2i { -1, 0 }
-RIGHT :: Vec2i  { 1, 0 }
+Vec2 :: [2] int
+UP :: Vec2  { 0, 1 }
+DOWN :: Vec2 { 0, -1 }
+LEFT :: Vec2 { -1, 0 }
+RIGHT :: Vec2  { 1, 0 }
 SANTA :: 0
 ROBO :: 1
 
 main :: proc() {
-    part := 1
+
+    part := 1 // 1 = day 3 part 1. 2 = day 3 part 2.
+
     file := "../inputs/input3.txt"
     buff, ok := os.read_entire_file(file)
     if !ok {
@@ -20,11 +22,12 @@ main :: proc() {
     }
     defer delete(buff)
 
-    santa_visits := make([dynamic] Vec2i)  // total inputs 8192
+    santa_visits := make([dynamic] Vec2)  // total inputs 8192
     defer delete_dynamic_array(santa_visits)
 
-    santa_pos: Vec2i
-    move: Vec2i
+    santa_pos: Vec2
+    robo_pos: Vec2
+    move: Vec2
     leng := len(buff)
 
     if part == 1 {
@@ -48,8 +51,8 @@ main :: proc() {
         fmt.printf("%v Houses got at lease one present!\n", leng+1)
 
     } else if part == 2 {
-        turn: int
-        robo_visits := make([dynamic] Vec2i)
+        turn: int 
+        robo_visits := make([dynamic] Vec2)
         defer delete_dynamic_array(robo_visits)
 
         for i in 0..<leng {
@@ -63,28 +66,31 @@ main :: proc() {
             } else if dir == '>' {
                 move = RIGHT
             }
-            santa_pos += move
             if turn == SANTA {
+                santa_pos += move
                 append(&santa_visits, santa_pos)
                 turn = ROBO
             } else if turn == ROBO {
-                append(&robo_visits, santa_pos)
+                robo_pos += move
+                append(&robo_visits, robo_pos)
                 turn = SANTA
             }
         }
 
         robo_pruned := prune_list(robo_visits[:])
         santa_pruned := prune_list(santa_visits[:])
-        if len(robo_pruned) > len(santa_pruned){
-            leng = len(santa_pruned)
-            for i in 0..<leng {
-
+        unique := make([dynamic] Vec2)
+        for i in 0..<len(santa_pruned) {
+            if !if_found(robo_pruned[:], santa_pruned[i]) {
+                append(&unique, santa_pruned[i])
             }
         }
+        fmt.printfln("%v Houses got at lease one present!", len(unique)+len(robo_pruned))
     }
 }
-prune_list :: proc(list: [] Vec2i) -> [] Vec2i {
-    pruned := make([dynamic] Vec2i, context.allocator)
+
+prune_list :: proc(list: [] Vec2) -> [] Vec2 {
+    pruned := make([dynamic] Vec2, context.allocator)
     leng := len(list)
 
     for i in 0..<leng {
@@ -99,12 +105,12 @@ prune_list :: proc(list: [] Vec2i) -> [] Vec2i {
     }
     return pruned[:]
 }
-if_found :: proc (c_list: [] Vec2i, find_pos: Vec2i) -> bool {
-    leng := len(c_list)
+if_found :: proc (list: [] Vec2, find_pos: Vec2) -> bool {
+    leng := len(list)
     found: bool
 
     for i in 0..<leng {
-        if find_pos == c_list[i] {
+        if find_pos == list[i] {
             found = true
         }
     }
