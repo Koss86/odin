@@ -1,0 +1,81 @@
+--------- For Linux ---------
+
+----- tasks.json Example:-----
+
+{
+	"version": "2.0.0",
+	"command": "",
+	"args": [],
+	"tasks": [
+		{
+			"label": "Build",
+			"type": "shell",
+			"command": "odin build . -debug",
+			"group": "build"
+		}
+	]
+}
+
+----- launch.json Example: -----
+
+    {
+    "version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"preLaunchTask": "Build",
+			"name": "Debug",
+			"program": "${workspaceFolder}/${workspaceFolderBasename}",
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+	]
+}
+
+-----settings.json Example: -----
+
+{ 
+	"debug.allowBreakpointsEverywhere": true
+}
+
+--------- For Windows ---------
+
+----- tasks.json Example:-----
+
+{
+	"version": "2.0.0",
+	"command": "",
+	"args": [],
+	"tasks": [
+		{
+			"label": "Build",
+			"type": "shell",
+			"command": "odin build . -debug",
+			"group": "build"
+		}
+	]
+}
+
+----- launch.json Example: -----
+
+    {
+    "version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"preLaunchTask": "Build",
+			"name": "Debug",
+			"program": "${workspaceFolder}/${workspaceFolderBasename}.exe",
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+	]
+}
+
+-----settings.json Example: -----
+
+{ 
+	"debug.allowBreakpointsEverywhere": true
+}
