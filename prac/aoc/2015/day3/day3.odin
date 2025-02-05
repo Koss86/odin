@@ -12,7 +12,7 @@ ROBO :: 1
 
 main :: proc() {
 
-    part := 1 // 1 = day 3 part 1. 2 = day 3 part 2.
+    part := 2   // 1 = day 3 part 1. 2 = day 3 part 2.
 
     file := "../inputs/input3.txt"
     buff, ok := os.read_entire_file(file)
@@ -31,7 +31,9 @@ main :: proc() {
     leng := len(buff)
 
     if part == 1 {
+
         for i in 0..<leng {
+            
             dir := buff[i]
             if dir == '^' {
                 move = UP
@@ -51,6 +53,7 @@ main :: proc() {
         fmt.printf("%v Houses got at lease one present!\n", leng+1)
 
     } else if part == 2 {
+
         turn: int 
         robo_visits := make([dynamic] Vec2)
         defer delete_dynamic_array(robo_visits)
@@ -86,6 +89,8 @@ main :: proc() {
             }
         }
         fmt.printfln("%v Houses got at lease one present!", len(unique)+len(robo_pruned))
+    } else {
+        fmt.println("Error. Set part variable to 1 or 2.")
     }
 }
 
