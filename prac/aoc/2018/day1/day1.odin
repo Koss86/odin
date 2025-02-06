@@ -1,8 +1,8 @@
 package day1
 import "core:fmt"
 import "core:os"
-import strs "core:strings"
-import strc "core:strconv"
+import "core:strings"
+import "core:strconv"
 
 main :: proc() {
     buff, ok := os.read_entire_file_from_filename("../inputs/input1.txt", context.allocator)
@@ -11,47 +11,29 @@ main :: proc() {
         return
     }
     
-    found: bool
     frequency: int
     it := string(buff)
-    frequencies := make([dynamic] int)
+    direcs := make([dynamic] int)
 
-    for line in strs.split_lines_iterator(&it) {
-            num := strc.atoi(line)
+    for line in strings.split_lines_iterator(&it) {
+            num := strconv.atoi(line)
             frequency += num
-            append(&frequencies, frequency)
-        }
-    for !found {
-        for i in 0..<len(frequencies) {
-            found = if_found(frequencies[:], frequencies[i], i)
-            if found {
-                fmt.printfln("Match found at frequency %v!", frequencies[i])
-                found = true
+            append(&direcs, num)
+    }
+    fmt.printfln("Part 1 answer: %v", frequency)
+
+    frequency = 0
+    seen_frequencies := make(map[int]bool)
+    seen_frequencies[0] = true
+
+    for {
+        for i in 0..<len(direcs) {
+            frequency += direcs[i]
+            if seen_frequencies[frequency] {
+                fmt.printfln("Part 2 answer: %i", frequency)
                 return
             }
+            seen_frequencies[frequency] = true
         }
-        leng := len(frequencies)
-        frequency = frequencies[leng-1]
-        for i in 0..<leng {
-            frequency += frequencies[i]
-            append(&frequencies, frequency)
-        }
-        fmt.println(cap(frequencies))
     }
-
-    //fmt.println(frequency)
-}
-if_found :: proc (list: [] int, find: int, skip_indx: int) -> bool {
-    leng := len(list)
-    found: bool
-    //fmt.println(skip_indx)
-    for i in 0..<leng {
-        if i == skip_indx {
-            continue
-        } else if find == list[i] {
-            found = true
-        }
-        
-    }
-    return found
 }
