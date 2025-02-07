@@ -1,6 +1,7 @@
 package day2
 import "core:os"
 import "core:fmt"
+import "core:slice"
 import "core:strings"
 
 main :: proc() {
@@ -31,10 +32,11 @@ main :: proc() {
         }
         found2: bool
         found3: bool
-        for _, count in seen_runes {
-            if count == 2 {
+        for key, value in seen_runes {
+            if value == 2 {
                 found2 = true
-            } else if count == 3 {
+                
+            } else if value == 3 {
                 found3 = true
             }
         }
@@ -48,6 +50,7 @@ main :: proc() {
     fmt.printfln("Part 1 answer: %v", run2*run3)
 
     for i in 0..<len(box_ids) {
+
         for j in i+1..<len(box_ids) {
             id1 := box_ids[i]
             id2 := box_ids[j]
@@ -63,7 +66,9 @@ main :: proc() {
                 }
             }
             if diff_count == 1 {
-                fmt.printfln("Found strings: %s and %s", id1, id2)
+                slice1 := id1[:diff_index]
+                slice2 := id1[diff_index+1:]
+                fmt.printfln("Part 2 answer: %v%v", slice1, slice2)
                 return
             }
         }
