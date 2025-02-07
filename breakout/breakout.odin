@@ -30,7 +30,12 @@ main :: proc() {
     for !rl.WindowShouldClose() {
         move_pad: f32
         dt: f32
+
         if !started {
+            ball_pos = {
+                CANVAS_SIZE/2 + f32(math.cos(rl.GetTime()) * CANVAS_SIZE/2.5),
+                BALL_START_Y
+            }
             if rl.IsKeyPressed(.SPACE) {
                 ball_dir = { 0, 1 }
                 started = true
@@ -38,6 +43,9 @@ main :: proc() {
         }else {
             dt = rl.GetFrameTime()
         }
+
+        ball_pos += ball_dir * BALL_SPEED * dt
+
         if rl.IsKeyDown(.LEFT) {
             move_pad -= PADDLE_SPEED
         }
@@ -56,6 +64,7 @@ main :: proc() {
                 paddle_pos_x, PADDLE_POS_Y,
                 PADDLE_WIDTH, PADDLE_HEIGHT
             }
+
             rl.DrawRectangleRec(paddle_rect, rl.RED)
             rl.DrawCircleV(ball_pos, BALL_RAD, rl.ORANGE)
 
@@ -67,4 +76,5 @@ main :: proc() {
 start :: proc() {
     paddle_pos_x = CANVAS_SIZE/2 - PADDLE_WIDTH/2
     ball_pos = { CANVAS_SIZE/2, BALL_START_Y }
+    started = false 
 }

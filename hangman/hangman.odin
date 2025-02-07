@@ -4,18 +4,19 @@ import rl "vendor:raylib"
 import "core:fmt"
 import "core:os"
 
+WINDOW_SIZE :: 920
 GRID_SIZE :: 20
 CELL_SIZE :: 16
-WINDOW_SIZE :: GRID_SIZE*CELL_SIZE
+SCREEN_SIZE :: GRID_SIZE*CELL_SIZE
 
 
 main :: proc() {
 
     rl.SetConfigFlags({.VSYNC_HINT})
-    rl.InitWindow(960, 960, "Hangman")
+    rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Hangman")
     //rl.InitAudioDevice()
     camera := rl.Camera2D {
-        zoom = f32(WINDOW_SIZE)
+        zoom = f32(WINDOW_SIZE)/SCREEN_SIZE
     }
 
 
