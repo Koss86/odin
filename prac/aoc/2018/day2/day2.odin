@@ -5,7 +5,12 @@ import "core:slice"
 import "core:strings"
 
 main :: proc() {        // 672 too low
-    buff, ok := os.read_entire_file("../inputs/input2.txt")
+    test: bool = true
+    if test {
+        
+    }
+    //buff, ok := os.read_entire_file("../inputs/input2.txt")
+    buff, ok := os.read_entire_file("test.txt")
     if !ok {
         fmt.eprintln("Error. Unable to read file.")
         return
