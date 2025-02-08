@@ -56,10 +56,10 @@ main :: proc() {
             id2 := box_ids[j]
             diff_count := 0
             diff_index := -1
-            for k in 0..<len(id1) {
-                if id1[k] != id2[k] {
+            for l in 0..<len(id1) {
+                if id1[l] != id2[l] {
                     diff_count += 1
-                    diff_index = k
+                    diff_index = l
                 }
                 if diff_count > 1 {
                     break
