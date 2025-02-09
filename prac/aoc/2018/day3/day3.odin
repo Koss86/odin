@@ -121,6 +121,6 @@ main :: proc() {
             append(&no_overlaps, i+1 )
         }
     }
-    fmt.printfln("Part 2 answer: %v", no_overlaps[0])
+    fmt.printfln("Part 2 answer: %v", no_overlaps)
     free_all(context.temp_allocator)
 }
