@@ -87,7 +87,6 @@ main :: proc() {
         }
     }
     fmt.printfln("Part 1 answer: %i", overlap)
-    
     no_overlaps := make([dynamic] int, context.temp_allocator)
     for i in 0..<NUM_OF_RECTS {
         not_found: bool
