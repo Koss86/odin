@@ -12,7 +12,8 @@ X :: Vec2 { 1, 0 }
 Y :: Vec2 { 0, 1 }
 Rectangle :: struct {
     xy: Vec2,
-    width: int, height: int
+    width: int,
+    height: int
 }
 
 main :: proc() {
@@ -21,7 +22,6 @@ main :: proc() {
         fmt.eprintln("Error. Unable to read file.")
         return
     }
-
     squares: [NUM_OF_RECTS] Rectangle
     it := string(buff)
     indx: int
@@ -53,13 +53,11 @@ main :: proc() {
         indx += 1
     }
 
+    free_all(context.temp_allocator)
     the_fabric := make(map[Vec2]int, context.temp_allocator)
     overlap: int
-    found: bool
     for i in 0..<NUM_OF_RECTS {  // 109,295 too low. 127,831 too high.
-
         the_fabric[squares[i].xy] += 1
-
         origin := squares[i].xy
         width := squares[i].width
         height := squares[i].height
@@ -68,7 +66,6 @@ main :: proc() {
             the_fabric[tmpy] += 1
             tmpy += Y
         }
-
         tmpx := origin+X
         for _ in 0..<width-1 {
             the_fabric[tmpx] += 1
@@ -89,5 +86,40 @@ main :: proc() {
         }
     }
     fmt.printfln("Part 1 answer: %i", overlap)
+    no_overlaps := make([dynamic] int, context.temp_allocator)
+    for i in 0..<NUM_OF_RECTS {
+        not_found: bool
+        origin := squares[i].xy
+        width := squares[i].width
+        height := squares[i].height
+        if the_fabric[origin] != 1 {
+            not_found = true
+        }
+        tmpy := origin+Y
+        for _ in 0..<height-1 {
+            if the_fabric[tmpy] != 1 {
+                not_found = true
+            }
+            tmpy += Y
+        }
+        tmpx := origin+X
+        for _ in 0..<width-1 {
+            if the_fabric[tmpx] != 1 {
+                not_found = true
+            }
+            tmpy = tmpx+Y
+            for _ in 0..<height-1 {
+                if the_fabric[tmpy] != 1 {
+                    not_found = true
+                }
+                tmpy += Y
+            }
+            tmpx += X
+        }
+        if !not_found {
+            append(&no_overlaps, i+1 )
+        }
+    }
+    fmt.printfln("Part 2 answer: %v", no_overlaps[0])
     free_all(context.temp_allocator)
 }
