@@ -24,4 +24,5 @@ main :: proc() {
     for line in strings.split_lines_iterator(&input) {
 
     }
+    schedule_map :=  make(map[int]int, context.temp_allocator) // prolly needs changing :)
 }
