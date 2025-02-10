@@ -7,7 +7,14 @@ import "core:strings"
 
 
 main :: proc() {
-    buff, ok := os.read_entire_file("../inputs/input5.txt", context.temp_allocator)
+    do_test :bool= true
+    buff: []byte
+    ok: bool
+    if do_test {
+        buff, ok = os.read_entire_file("test.txt", context.temp_allocator)       
+    } else {
+        buff, ok = os.read_entire_file("../inputs/input5.txt", context.temp_allocator)
+    }
     if !ok {
         fmt.eprintfln("Error. Unable to open file.")
         return
@@ -41,9 +48,13 @@ main :: proc() {
     fmt.printfln("%v", len(input))
     remove_elements(&input, 2000)
 }
-remove_elements :: proc(input: ^string, indx: int) {
-    leng := len(input)
-    for i := indx; i < leng-1; i += 1 {
-        fmt.println(i)
-    }
+remove_elements :: proc(input: []string, indx: int) {
+    leng := len(input^)
+    fmt.println(leng)
+    tmp :[]byte= byte(input)
+    for i := indx; i < leng-3; i += 1 {
+        tmp[i] = input[i+1]
+    }   
+    input^ = input[:leng-1]
+    return string(tmp)
 }
