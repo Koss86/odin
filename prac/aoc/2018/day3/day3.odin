@@ -46,8 +46,7 @@ main :: proc() {
                     squares[indx].width = strconv.atoi(tmp)
                 case 4:
                     run += 1
-                    squares[indx].height = strconv.atoi(str) 
-
+                    squares[indx].height = strconv.atoi(str)
             }
         }
         indx += 1
@@ -56,7 +55,7 @@ main :: proc() {
     free_all(context.temp_allocator)
     the_fabric := make(map[Vec2]int, context.temp_allocator)
     overlap: int
-    for i in 0..<NUM_OF_RECTS {  // 109,295 too low. 127,831 too high.
+    for i in 0..<NUM_OF_RECTS {
         the_fabric[squares[i].xy] += 1
         origin := squares[i].xy
         width := squares[i].width

@@ -22,7 +22,9 @@ main :: proc() {
     }
     input := string(buff)
     for line in strings.split_lines_iterator(&input) {
-
+        split := line
+        splits := [?]string {"-"," ",":"}
     }
+
     schedule_map :=  make(map[int]int, context.temp_allocator) // prolly needs changing :)
 }
