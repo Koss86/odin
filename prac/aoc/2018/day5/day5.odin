@@ -30,7 +30,8 @@ main :: proc() {
         nxt_pos := input[i+1]
         if (cur_pos >= 'A' && cur_pos <= 'Z' && nxt_pos == cur_pos + 32) ||
            (cur_pos >= 'a' && cur_pos <= 'z' && nxt_pos == cur_pos - 32) {
-            //fmt.println(input[i:i+1])   
+            //fmt.println(input[i:i+1]) 
+              
             input, ok = strings.remove(input, input[i:i+1], 1, context.temp_allocator)
             free_all(context.allocator)
             //fmt.println(input[i:i+1])
@@ -46,15 +47,13 @@ main :: proc() {
     }
     //fmt.println(input)
     fmt.printfln("%v", len(input))
-    remove_elements(&input, 2000)
+    remove_elements(input, 2000)
 }
-remove_elements :: proc(input: []string, indx: int) {
-    leng := len(input^)
+remove_elements :: proc(input: string, indx: int) {
+    leng := len(input)
     fmt.println(leng)
-    tmp :[]byte= byte(input)
     for i := indx; i < leng-3; i += 1 {
-        tmp[i] = input[i+1]
+        input[i] = input[i+1]
     }   
-    input^ = input[:leng-1]
-    return string(tmp)
+    input = input[:leng-1]
 }
