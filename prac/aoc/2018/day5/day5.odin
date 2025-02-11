@@ -7,13 +7,13 @@ import "core:strings"
 
 
 main :: proc() {
-    do_test :bool= true
+    do_test :bool= false
     buff: []byte
     ok: bool
     if do_test {
-        buff, ok = os.read_entire_file("test.txt", context.temp_allocator)       
+        buff, ok = os.read_entire_file("test.txt", context.allocator)       
     } else {
-        buff, ok = os.read_entire_file("../inputs/input5.txt", context.temp_allocator)
+        buff, ok = os.read_entire_file("../inputs/input5.txt", context.allocator)
     }
     if !ok {
         fmt.eprintfln("Error. Unable to open file.")
@@ -21,39 +21,42 @@ main :: proc() {
     }
     orig_test_input := "dabAcCaCBAcCcaDA"
     tmp := string(buff)
-    input := strings.clone(tmp, context.allocator)
-    free_all(context.temp_allocator)
+    input := strings.clone(tmp, context.temp_allocator)
     leng := len(input)
     i := 0
-    for i < leng-1 {        // 20780 too large.
+    for i < leng-1 {        // 20780 too large. 7466 too low. 10368 just right.
         cur_pos := input[i]
         nxt_pos := input[i+1]
         if (cur_pos >= 'A' && cur_pos <= 'Z' && nxt_pos == cur_pos + 32) ||
            (cur_pos >= 'a' && cur_pos <= 'z' && nxt_pos == cur_pos - 32) {
-            //fmt.println(input[i:i+1]) 
-              
-            input, ok = strings.remove(input, input[i:i+1], 1, context.temp_allocator)
-            free_all(context.allocator)
-            //fmt.println(input[i:i+1])
-            input, ok = strings.remove(input, input[i:i+1], 1, context.allocator)
-            leng = len(input)
-            free_all(context.temp_allocator)
-            if i > 0 {
+               if i > 0 {
+                s1 := input[:i]
+                s2 := input[i+2:]
+                str := []string{ s1, s2 }
+                input = strings.concatenate(str, context.temp_allocator)
+                leng = len(input)
                 i -= 1
+            } else {
+                s1 := ""
+                s2 := input[i+2:]
+                str := []string { s1, s2 }
+                input = strings.concatenate(str, context.temp_allocator)
+                leng = len(input) 
             }
         } else {
             i += 1
         }
     }
-    //fmt.println(input)
-    fmt.printfln("%v", len(input))
-    remove_elements(input, 2000)
-}
-remove_elements :: proc(input: string, indx: int) {
-    leng := len(input)
-    fmt.println(leng)
-    for i := indx; i < leng-3; i += 1 {
-        input[i] = input[i+1]
-    }   
-    input = input[:leng-1]
+    fmt.printfln("Part1 answer: %v", len(input))
+    free_all(context.temp_allocator)
+    input = strings.clone(tmp, context.temp_allocator)
+    alphas := [?]string {"a","b","c","d","e","f","g","h","i","j",
+                            "k","l","m","n","o","p","q","r","s",
+                                "t","u","v","w","x","y","z"}
+    outter_leng := len(alphas)
+    leng = len(input)
+    for i in 0..<outter_leng {
+        fmt.println(alphas[i])
+    }
+    
 }
