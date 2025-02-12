@@ -23,10 +23,10 @@ main :: proc() {
     }
     //fmt.println(input[1081]-48)
     fmt.printfln("Part 1 answer: %v", total)
-    mid := len(input)/2 - 1
-    total = 9
+    mid := len(input)/2
     j := mid
-    for i in 0..<leng {         // 1181 too low.
+    total = 0
+    for i in 0..<leng {                         // 1181 too low.
         num1 := strconv.atoi(input[i:i+1])
         num2 := strconv.atoi(input[j:j+1])
         if num1 == num2 {
