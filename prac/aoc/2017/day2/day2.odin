@@ -7,12 +7,8 @@ import "core:strings"
 
 SIZE :: 16
 
-Values :: struct {
-    value: [4]int
-}
-
 Spread_Sheet :: struct {
-    numbers: [16] Values
+    num: [16] int
 }
 
 main :: proc() {
@@ -28,57 +24,43 @@ main :: proc() {
         fmt.eprintln("Error. Unable to open file.")
         return
     }
+    
     input := string(buff)
-
     spread_sheets := make([]Spread_Sheet, SIZE, context.allocator)
-    for i in 0..<SIZE {
-        for j in 0..<SIZE {
-            for l in 0..<4  {   // Using -1 to signal end of array.
-                spread_sheets[i].numbers[j].value[l] = -1
-            }
-        }
-    }
-    numsIndx: int
+    sheetIndx: int
+    
     for line in strings.split_lines_iterator(&input) {
         it := line
         split := " "
-        sheetIndx: int
+        numsIndx: int
         for str in strings.split_iterator(&it, split) {
-            leng := len(str)
-            tmp := strings.trim_space(str)
-            for i in 0..<leng {
-                num := strconv.atoi(tmp[i:i+1])
-                //fmt.println(num)
-                //fmt.println(i)
-                spread_sheets[sheetIndx].numbers[numsIndx].value[i] = num
-            }
-            sheetIndx += 1
+            //tmp := strings.trim_space(str)
+            num := strconv.atoi(str)
+            //fmt.println(num)
+            spread_sheets[sheetIndx].num[numsIndx] = num
+            
+            numsIndx += 1
         }
-        numsIndx += 1
+        sheetIndx += 1
     }
     free_all(context.temp_allocator)
-    for nums in 0..<SIZE {
-        fmt.printfln("Sheet %v", nums+1)
-        for sheets in 0..<SIZE {
-            fmt.println(spread_sheets[nums].numbers[sheets].value)
-        }
-    }
     total: int
     for i in 0..<SIZE {
-        for j in 0..<SIZE {
-            total += high_low_diff(spread_sheets[i].numbers[j].value[:])
-        }
+            total += high_low_diff(spread_sheets[i].num[:])
+        
     }
-    fmt.println(total)
+    fmt.printfln("Part 1 answer: %v", total)  // 676784 too high.
+    total = 0
+    for i in 0..<SIZE {
+        total += is_divisable(spread_sheets[i].num[:])
+    }
+    fmt.printfln("Part 2 answer: %v", total)
 }
-
 high_low_diff :: proc(nums: []int) -> int {
     h: int = nums[0]
     l: int = nums[0]
-    for i in 0..<4 {
-        if nums[i] == -1 {
-            break
-        }
+    for i in 0..<SIZE {
+
         if h < nums[i] {
             h = nums[i]
         }
@@ -87,4 +69,26 @@ high_low_diff :: proc(nums: []int) -> int {
         }
     }
     return h-l
+}
+is_divisable :: proc(nums: []int) -> int {
+    for i in 0..<SIZE {
+        n1 := nums[i]
+        for j in 0..<SIZE {
+            if i == j {
+                continue
+            }
+            n2 := nums[j]
+            if n1 > n2 {
+                if n1%n2 == 0 {
+                    return n1/n2
+                }
+            } else {
+                if n2%n1 == 0 {
+                    return n2/n1
+                }
+            }
+        }
+    }
+    fmt.println("You shouldnt see this.")
+    return -1
 }
