@@ -1,5 +1,4 @@
 package day1
-
 import "core:os"
 import "core:fmt"
 import "core:strconv"
@@ -14,7 +13,7 @@ main :: proc() {
         return
     }
     input := string(buff)
-    numbers := make([]int, 100, context.allocator)
+    numbers := make([]int, SIZE, context.allocator)
     indx: int
     total: int
     for line in strings.split_lines_iterator(&input) {
@@ -29,10 +28,10 @@ main :: proc() {
 
     total = 0
     for i in 0..<SIZE {
-    litmus := (numbers[i]/3)-2
-        for litmus > 0 {
-            total += litmus
-            litmus = (litmus/3)-2
+    fuel := (numbers[i]/3)-2
+        for fuel > 0 {
+            total += fuel
+            fuel = (fuel/3)-2
         }
     }
     fmt.printfln("Part 2 answer: %v", total)
