@@ -6,7 +6,7 @@ import "core:strconv"
 import "core:strings"
 
 LENG :: 121
-NUM :: 20
+NUM :: 100
 
 main :: proc() {
     test: bool = false
@@ -93,6 +93,5 @@ main :: proc() {
         }
         add1 += 1
     }
-    fmt.println(intcode0)
-    fmt.printfln("Part 2 answer: noun-%v verb-%v = %v", intcode2[1], intcode2[2], 100*intcode2[1]+intcode2[2])
+    fmt.printfln("Part 2 answer: %v", 100*intcode2[1]+intcode2[2])
 }
