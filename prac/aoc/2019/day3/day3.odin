@@ -50,11 +50,18 @@ main :: proc() {
     trace_wire(wire1, &wire_paths)
     trace_wire(wire2, &wire_paths)
 
+    min_distance := 320000 // Initialize to maximum possible integer value
+    closest_intersection := Vec2{}
+
     for x in 0..<GRID_SIZE {
         for y in 0..<GRID_SIZE {
             pos := Vec2 { x, y }
             if wire_paths[pos] > 1 {
-                fmt.println(pos)
+                distance := manhattan_distance(ORIGIN, pos)
+                if distance < min_distance {
+                    min_distance = distance
+                    closest_intersection = pos
+                }
             }
         }
     }
@@ -62,10 +69,16 @@ main :: proc() {
         for y in -1000..<0 {
             pos := Vec2 { x, y }
             if wire_paths[pos] > 1 {
-                fmt.println(pos)
+                distance := manhattan_distance(ORIGIN, pos)
+                if distance < min_distance {
+                    min_distance = distance
+                    closest_intersection = pos
+                }
             }
         }
     }
+    fmt.println("Closest intersection:", closest_intersection, "with distance:", min_distance)
+
 }
 trace_wire :: proc(wire: [] Wire_Path, paths: ^map[Vec2]int) {
     pos: Vec2 = ORIGIN
@@ -96,4 +109,7 @@ trace_wire :: proc(wire: [] Wire_Path, paths: ^map[Vec2]int) {
             }
         }
     }
+}
+manhattan_distance :: proc(a: Vec2, b: Vec2) -> int {
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
 }
