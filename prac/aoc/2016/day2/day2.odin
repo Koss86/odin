@@ -29,6 +29,16 @@ main :: proc() {
     input := string(buff)
     pos := START_POS
     move_pos: Vec2
+    num := WIDTH*WIDTH
+    key_pad: [WIDTH] [WIDTH] int
+    indx: int
+    for x in 0..<WIDTH {
+        for y in 0..<WIDTH {
+            key_pad[x][y] = num
+            num -= 1
+        }
+    }
+    fmt.println(key_pad)
     for line in strings.split_lines_iterator(&input) {
         for r in line {
             if r == 'U' {
@@ -41,12 +51,15 @@ main :: proc() {
                 move_pos = Right
             }
             tmp := pos+move_pos
-        if tmp.x < 0 && tmp.y > WIDTH ||
-            tmp.y < 0 && tmp.x > WIDTH {
-                continue
-        }
+            if tmp.x < 0 || tmp.y >= WIDTH ||
+                tmp.y < 0 || tmp.x >= WIDTH {
+                    continue
+            }
+            pos += move_pos
         }
         
+        fmt.println(pos)
+        fmt.println(key_pad[0][0])
 
     }
 }
