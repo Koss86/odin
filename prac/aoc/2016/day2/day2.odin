@@ -5,16 +5,15 @@ import "core:strconv"
 import "core:strings"
 
 WIDTH :: 3
-
 Vec2 :: [2]int
 Up :: Vec2 { 0, 1 }
 Down :: Vec2 { 0, -1 }
-Left :: Vec2 { -1, 0 }
-Right :: Vec2 { 1, 0 }
+Left :: Vec2 { 1, 0 }
+Right :: Vec2 { -1, 0 }
 START_POS :: Vec2 { 1, 1 }
 
 main :: proc() {
-    test := true
+    test := false
     buff: []byte
     ok: bool
     if test {
@@ -29,16 +28,15 @@ main :: proc() {
     input := string(buff)
     pos := START_POS
     move_pos: Vec2
-    num := WIDTH*WIDTH
+    key_pad_nums := WIDTH*WIDTH
     key_pad: [WIDTH] [WIDTH] int
-    indx: int
-    for x in 0..<WIDTH {
-        for y in 0..<WIDTH {
-            key_pad[x][y] = num
-            num -= 1
+    for y in 0..<WIDTH {
+        for x in 0..<WIDTH {
+            key_pad[x][y] = key_pad_nums
+            key_pad_nums -= 1
         }
     }
-    fmt.println(key_pad)
+    fmt.printf("Part 1 answer: ")
     for line in strings.split_lines_iterator(&input) {
         for r in line {
             if r == 'U' {
@@ -57,9 +55,6 @@ main :: proc() {
             }
             pos += move_pos
         }
-        
-        fmt.println(pos)
-        fmt.println(key_pad[0][0])
-
+        fmt.printf("%v", key_pad[pos.x][pos.y])
     }
 }
