@@ -13,7 +13,7 @@ Right :: Vec2 { -1, 0 }
 START_POS :: Vec2 { 1, 1 }
 
 main :: proc() {
-    test := false
+    test := true
     buff: []byte
     ok: bool
     if test {
@@ -29,10 +29,10 @@ main :: proc() {
     pos := START_POS
     move_pos: Vec2
     key_pad_nums := WIDTH*WIDTH
-    key_pad: [WIDTH] [WIDTH] int
+    key_pad1: [WIDTH] [WIDTH] int
     for y in 0..<WIDTH {
         for x in 0..<WIDTH {
-            key_pad[x][y] = key_pad_nums
+            key_pad1[x][y] = key_pad_nums
             key_pad_nums -= 1
         }
     }
@@ -55,6 +55,7 @@ main :: proc() {
             }
             pos += move_pos
         }
-        fmt.printf("%v", key_pad[pos.x][pos.y])
+        fmt.printf("%v", key_pad1[pos.x][pos.y])
     }
+    
 }
