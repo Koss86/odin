@@ -13,7 +13,7 @@ Right :: Vec2 { -1, 0 }
 START_POS :: Vec2 { 1, 1 }
 
 main :: proc() {
-    test := true
+    test := false
     buff: []byte
     ok: bool
     if test {
@@ -57,5 +57,5 @@ main :: proc() {
         }
         fmt.printf("%v", key_pad1[pos.x][pos.y])
     }
-    
+    fmt.printf("\n")
 }
