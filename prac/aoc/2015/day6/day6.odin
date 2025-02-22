@@ -21,6 +21,10 @@ Instructions :: struct {
     vec2: Vec2,
     brightness: int,
 }
+Status :: struct {
+    brightness: int,
+    state: bool
+}
 
 main :: proc() {
     default_allocator := context.allocator
@@ -70,7 +74,7 @@ main :: proc() {
         indx += 1
     }
     lights := make(map[Vec2]bool, context.allocator)
-    brightness := make(map[Vec2]int, context.allocator) // todo: combine maps with custom struct :: {brght: int, state: bool}
+    brightness := make(map[Vec2]int, context.allocator)
     for i in 0..<DB_SIZE {
         vec1 := santas_inscructs[i].vec1
         vec2 := santas_inscructs[i].vec2
