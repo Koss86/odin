@@ -2,6 +2,7 @@ package hangman
 import "core:os"
 import "core:fmt"
 import "core:math"
+import "core:time"
 import "core:bytes"
 import "core:strconv"
 import "core:strings"
@@ -48,26 +49,36 @@ main :: proc() {
         fmt.println()
     }
 */
+    seed:= rl.GetTime()
+    //rl.SetRandomSeed(seed)
+    rand := rl.GetRandomValue(1, 20)
+    fmt.println(seed)
+    fmt.println(rand)
+    expected_leng: int
+    if os_platform == .Linux {
+        expected_leng = 2
+    } else if os_platform == .Windows {
+        expected_leng = 3
+    }
     scores: [10]int
-    fmt.print("Enter scores to average: ")
+    fmt.print("Guess a letter: ")
     num_of_stdin, _ = os.read(os.stdin, buff[:])
+    for num_of_stdin != expected_leng || buff[0] == 32 {
+        fmt.printf("Please guess one letter only and no spaces.\nGuess a letter: ")
+        num_of_stdin, _ = os.read(os.stdin, buff[:])
+    }
+    fmt.println(num_of_stdin)
+    fmt.println(buff[0])
     
 
     tmp_str = string(buff[:])
     
     if os_platform == .Linux {
         indx = bytes.index_byte(buff[:], 10)
-    } else {
+    } else if os_platform == .Windows {
         indx = bytes.index_byte(buff[:], 13)
     }
-    tmp_num_str = tmp_str[:indx]
-    indx = 0
-    for str in strings.split_iterator(&tmp_num_str, " ") {
-        scores[indx] = strconv.atoi(str)
-        indx += 1
-    }
-    avg := avg_scores(scores[:])
-    fmt.println(avg)
+    
 }
 
 avg_scores :: proc(scores: []int) -> f32 {
