@@ -15,20 +15,24 @@ main :: proc() {
     buff: [16]byte
     w, h: int
     indx: int
-    num_bytes: int
+    tmp_str: string
+    tmp_num_str: string
+    num_of_stdin: int
     os_platform := info.os_version.platform
-
+/*
     fmt.print("Width? ")
-    num_bytes, _ = os.read(os.stdin, buff[:])
+    num_of_stdin, _ = os.read(os.stdin, buff[:])
     if os_platform == .Linux {
         indx = bytes.index_byte(buff[:], 10)
     } else {
         indx = bytes.index_byte(buff[:], 13)
     }
-    tmp_str := string(buff[:])
+
+    tmp_str = string(buff[:])
     w = strconv.atoi(tmp_str[:indx])
+
     fmt.print("Height? ")
-    num_bytes, _ = os.read(os.stdin, buff[:])
+    num_of_stdin, _ = os.read(os.stdin, buff[:])
 
     if os_platform == .Linux {
         indx = bytes.index_byte(buff[:], 10)
@@ -43,19 +47,39 @@ main :: proc() {
         }
         fmt.println()
     }
+*/
+    scores: [10]int
     fmt.print("Enter scores to average: ")
-    num_bytes, _ = os.read(os.stdin, buff[:])
-    fmt.println(tmp_str)
+    num_of_stdin, _ = os.read(os.stdin, buff[:])
+    
 
+    tmp_str = string(buff[:])
+    
+    if os_platform == .Linux {
+        indx = bytes.index_byte(buff[:], 10)
+    } else {
+        indx = bytes.index_byte(buff[:], 13)
+    }
+    tmp_num_str = tmp_str[:indx]
+    indx = 0
+    for str in strings.split_iterator(&tmp_num_str, " ") {
+        scores[indx] = strconv.atoi(str)
+        indx += 1
+    }
+    avg := avg_scores(scores[:])
+    fmt.println(avg)
 }
 
-avg_scores :: proc(scores: []int) -> int {
-    leng := len(scores)
-    sum: int
-    for i in 0..<leng {
-        sum += scores[i]
+avg_scores :: proc(scores: []int) -> f32 {
+    sum: f32
+    ct: f32
+    for v in scores {
+        if v > 0 {
+            sum += f32(v)
+            ct += 1
+        }
     }
-    return sum/leng
+    return sum/ct
 }
 /*
 OS:    OS_Version{
