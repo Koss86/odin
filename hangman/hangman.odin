@@ -50,14 +50,11 @@ main :: proc() {
     indx = 0
     fmt.print("Guess a letter: ")
     num_of_stdin, _ := os.read(os.stdin, buff[:])
-
     for num_of_stdin != expected_leng || buff[0] == SPACE || 
-        buff[0] >= '0' && buff[0] <= '9' {
-            fmt.printf("\nPlease guess one letter only, no spaces or numbers.\n\nGuess a letter: ")
-            num_of_stdin, _ = os.read(os.stdin, buff[:])
+                          buff[0] >= '0' && buff[0] <= '9' {
+        fmt.printf("\nPlease guess one letter only, no spaces or numbers.\n\nGuess a letter: ")
+        num_of_stdin, _ = os.read(os.stdin, buff[:])
     }
-    //fmt.println(num_of_stdin)
-    //fmt.println(buff[0])
 
     tmp_str := string(buff[:])
     
