@@ -25,39 +25,48 @@ main :: proc() {
     buff, ok := os.read_entire_file("word_bank.txt", context.temp_allocator)
     word_bank := make([]string, BANK_SIZE, context.allocator)
 
+    indx: int
     input := string(buff)
-    seed := rand.uint32()
-    fmt.println(input)
-
-    rl.SetRandomSeed(seed)
-    key := random_num(0, 19)
+    for str in strings.split_iterator(&input, ",") {
+        word_bank[indx] = strings.clone(str, context.allocator)
+        indx += 1
+    }
+    
+    key := random_num(0, BANK_SIZE-1)
+    answer := word_bank[key]
     os_platform := info.os_version.platform
 
     expected_leng: int
-    if os_platform == .Linux {
+    #partial switch os_platform {
+        case .Linux:
         expected_leng = LINUX_NUM_RETURNS
-    } else if os_platform == .Windows {
+        case .Windows: 
         expected_leng = WINDOWS_NUM_RETURNS
+        case:
+        fmt.printfln("Error. Unknown OS.")
+        return
     }
     
-    indx: int
+    indx = 0
     fmt.print("Guess a letter: ")
     num_of_stdin, _ := os.read(os.stdin, buff[:])
 
-    for num_of_stdin != expected_leng || buff[0] == SPACE {
-        fmt.printf("\nPlease guess one letter only and no spaces.\n\nGuess a letter: ")
-        num_of_stdin, _ = os.read(os.stdin, buff[:])
+    for num_of_stdin != expected_leng || buff[0] == SPACE || 
+        buff[0] >= '0' && buff[0] <= '9' {
+            fmt.printf("\nPlease guess one letter only, no spaces or numbers.\n\nGuess a letter: ")
+            num_of_stdin, _ = os.read(os.stdin, buff[:])
     }
-
     //fmt.println(num_of_stdin)
     //fmt.println(buff[0])
 
     tmp_str := string(buff[:])
     
-    if os_platform == .Linux {
+    #partial switch os_platform {
+        case .Linux:
         indx = bytes.index_byte(buff[:], 10)
-    } else if os_platform == .Windows {
+        case .Windows: 
         indx = bytes.index_byte(buff[:], 13)
     }
-    
+    guess := tmp_str[:indx]
+    fmt.println(guess)
 }

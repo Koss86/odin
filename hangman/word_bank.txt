@@ -1,1 +1,1 @@
-coffee,computer,laptop,genius,driven,castaway,watermellon,grape,tomato,salad,cobbler,mason,backpack,elevator,lighter,lamp,magic,toothbrush,terminal,console
+coffee,computer,laptop,driven,castaway,watermellon,grape,tomato,salad,cobbler,mason,backpack,elevator,lighter,lamp,magic,toothbrush,terminal,console,photograph
