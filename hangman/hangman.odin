@@ -8,35 +8,54 @@ import "core:strings"
 import "core:sys/info"
 import rl "vendor:raylib"
 
+Vec2 :: rl.Vector2
+WINDOW_SIZE :: 920
+GRID_WIDTH :: 20
+CELL_SIZE :: 16
+CANVAS_SIZE :: GRID_WIDTH*CELL_SIZE
 LINUX_NUM_RETURNS :: 2
 WINDOWS_NUM_RETURNS :: 3
 SPACE :: 32
 BANK_SIZE :: 20
 
-random_num :: proc(min: int, max: int) -> int {
+key: i32
+indx: int
+guesses: int
+correct: int
+answer: string
+game_over: bool
+first_run: bool
+word_bank: [BANK_SIZE] string
+
+random_num :: proc(min: int, max: int) -> i32 {
     min := i32(min)
     max := i32(max)
     seed := rand.uint32()
     rl.SetRandomSeed(seed)
-    return int(rl.GetRandomValue(min, max))
+    return rl.GetRandomValue(min, max)
+}
+game_state :: proc() {
+    key = random_num(0, BANK_SIZE-1)
+    answer = word_bank[key]
+    guesses = 6
+    correct = 0
+    indx = 0
+    first_run = false
+    game_over = false
 }
 
 main :: proc() {
     buff, ok := os.read_entire_file("word_bank.txt", context.temp_allocator)
-    word_bank := make([]string, BANK_SIZE, context.allocator)
 
-    indx: int
     input := string(buff)
     for str in strings.split_iterator(&input, ",") {
         word_bank[indx] = strings.clone(str, context.allocator)
         indx += 1
     }
     
-    key := random_num(0, BANK_SIZE-1)
-    answer := word_bank[key]
-    os_platform := info.os_version.platform
-
+    game_state()
     expected_leng: int
+    os_platform := info.os_version.platform
     #partial switch os_platform {
         case .Linux:
         expected_leng = LINUX_NUM_RETURNS
@@ -46,8 +65,25 @@ main :: proc() {
         fmt.printfln("Error. Unknown OS.")
         return
     }
-    
-    indx = 0
+
+    camera := rl.Camera2D {
+        zoom = f32(WINDOW_SIZE)/CANVAS_SIZE
+    }
+    rl.SetConfigFlags({.VSYNC_HINT})
+    rl.InitWindow(WINDOW_SIZE,WINDOW_SIZE, "Hangman")
+    for !rl.WindowShouldClose() {
+        rl.BeginDrawing()
+            rl.BeginMode2D(camera)
+            rl.ClearBackground({ 15, 30, 175, 255 })
+
+            rl.DrawText("Welcome to Hangman!", 38, 15, 25, rl.ORANGE)
+
+            rl.EndMode2D()
+        rl.EndDrawing()
+    }
+    rl.CloseWindow()
+
+    /*
     fmt.print("Guess a letter: ")
     num_of_stdin, _ := os.read(os.stdin, buff[:])
     for num_of_stdin != expected_leng || buff[0] == SPACE || 
@@ -66,4 +102,5 @@ main :: proc() {
     }
     guess := tmp_str[:indx]
     fmt.println(guess)
+    */
 }
