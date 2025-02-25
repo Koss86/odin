@@ -24,7 +24,7 @@ guesses: int
 correct: int
 answer: string
 game_over: bool
-first_run: bool
+game_start: bool
 word_bank: [BANK_SIZE] string
 
 random_num :: proc(min: int, max: int) -> i32 {
@@ -40,12 +40,11 @@ game_state :: proc() {
     guesses = 6
     correct = 0
     indx = 0
-    first_run = false
     game_over = false
 }
 
 main :: proc() {
-    buff, ok := os.read_entire_file("word_bank.txt", context.temp_allocator)
+    buff, ok := os.read_entire_file("word_bank.txt", context.allocator)
 
     input := string(buff)
     for str in strings.split_iterator(&input, ",") {
@@ -75,8 +74,22 @@ main :: proc() {
         rl.BeginDrawing()
             rl.BeginMode2D(camera)
             rl.ClearBackground({ 15, 30, 175, 255 })
-
-            rl.DrawText("Welcome to Hangman!", 38, 15, 25, rl.ORANGE)
+            if !game_start {
+                rl.DrawText("Welcome to Hangman!", 38, 15, 25, rl.ORANGE)
+                rl.DrawText("Press SPACE to begin.", 96, 40, 9, rl.ORANGE)
+                if rl.IsKeyPressed(.SPACE) {
+                    game_start = true
+                }
+            }
+            if game_start {
+               pos := Vec2 { GRID_WIDTH/2, GRID_WIDTH/2 }
+                rect := rl.Rectangle {
+                    pos.x * CELL_SIZE, pos.y * CELL_SIZE,
+                    CELL_SIZE, CELL_SIZE
+            }
+            rl.DrawRectangleRec(rect, rl.ORANGE) 
+            }
+            
 
             rl.EndMode2D()
         rl.EndDrawing()
