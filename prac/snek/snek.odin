@@ -64,6 +64,11 @@ main :: proc() {
         if tick_timer <= 0 {
             nxt_pos := snek[0]
             snek[0] += move_snek
+            
+            if snek[0].x < 0 || snek[0].x >= GRID_SIZE ||
+                snek[0].y < 0 || snek[0].y >= GRID_SIZE {
+                    game_over = true
+                }
 
             for i in 1..<snek_leng {
                 cur_pos := snek[i]
@@ -134,7 +139,9 @@ main :: proc() {
                     rl.DrawTexturePro(part_sprite, source, dest, { CELL_SIZE, CELL_SIZE }*0.5, rot, rl.WHITE)
                 }
             }   
-
+            score := snek_leng-3
+            score_str := fmt.ctprintf("Score: %v", score)
+            rl.DrawText(score_str, 4, 299, 15, rl.GRAY)
             rl.EndMode2D()
         rl.EndDrawing()
     }

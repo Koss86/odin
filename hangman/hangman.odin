@@ -74,21 +74,35 @@ main :: proc() {
         rl.BeginDrawing()
             rl.BeginMode2D(camera)
             rl.ClearBackground({ 15, 30, 175, 255 })
+            //rl.ClearBackground(rl.BLUE)
+
             if !game_start {
-                rl.DrawText("Welcome to Hangman!", 38, 15, 25, rl.ORANGE)
-                rl.DrawText("Press SPACE to begin.", 96, 40, 9, rl.ORANGE)
+                rl.DrawText("Welcome to Hangman!", 38, 15, 25, { 210, 100, 75, 255 })
+                rl.DrawText("Press SPACE to begin.", 96, 40, 9, { 210, 100, 75, 255 })
                 if rl.IsKeyPressed(.SPACE) {
                     game_start = true
                 }
-            }
-            if game_start {
-               pos := Vec2 { GRID_WIDTH/2, GRID_WIDTH/2 }
+            } else {
+                pos := Vec2 { 4, GRID_WIDTH/2 }
                 rect := rl.Rectangle {
                     pos.x * CELL_SIZE, pos.y * CELL_SIZE,
+                    CELL_SIZE*6, CELL_SIZE/2
+                }
+                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 }) 
+                pos += { 0, -7}
+                rect = rl.Rectangle {
+                    pos.x * CELL_SIZE+CELL_SIZE/2, pos.y * CELL_SIZE,
+                    CELL_SIZE, CELL_SIZE*7
+                }
+                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 })
+                pos += { 0, -1 }
+                rect = rl.Rectangle {
+                    pos.x * CELL_SIZE+CELL_SIZE+CELL_SIZE/2, pos.y * CELL_SIZE,
                     CELL_SIZE, CELL_SIZE
+                }
+                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 })
             }
-            rl.DrawRectangleRec(rect, rl.ORANGE) 
-            }
+            
             
 
             rl.EndMode2D()
