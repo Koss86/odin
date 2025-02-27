@@ -141,6 +141,8 @@ main :: proc() {
             }   
             score := snek_leng-3
             score_str := fmt.ctprintf("Score: %v", score)
+
+            free_all(context.temp_allocator)
             rl.DrawText(score_str, 4, 299, 15, rl.GRAY)
             rl.EndMode2D()
         rl.EndDrawing()
@@ -164,7 +166,7 @@ place_food :: proc() {
     for i in 0..<snek_leng {
         occupied [int(snek[i].x)] [int(snek[i].y)] = true
     }
-    free_cells := make([dynamic] Vec2)
+    free_cells := make([dynamic] Vec2, context.temp_allocator)
     for x in 0..<GRID_SIZE {
         for y in 0..<GRID_SIZE {
             if !occupied[x][y] {
@@ -174,4 +176,5 @@ place_food :: proc() {
     }
     rand: i32 = rl.GetRandomValue(0, i32(len(free_cells)-1))
     food_pos = free_cells[rand]
+    fmt.println(rand)
 }
