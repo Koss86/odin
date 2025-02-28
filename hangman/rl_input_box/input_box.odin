@@ -80,18 +80,14 @@ main :: proc() {
             rl.DrawText(c_name, i32(text_box.x)+5, i32(text_box.y)+8, 40, rl.MAROON)
             rl.DrawText(rl.TextFormat("Input Chars: %i/%i", letter_count, MAX_INPUT), 315, 250, 20, rl.DARKGRAY)
 
-            tick_timer -= rl.GetFrameTime()
-            if tick_timer <= 0 {
-                if mouse_on_text {
-                    if letter_count < MAX_INPUT {
-                        if (frames_counter/20)%2 == 0 {
-                            rl.DrawText("_", i32(text_box.x) + 8 + rl.MeasureText(c_name, 40), i32(text_box.y) + 12, 40, rl.MAROON)
-                        } else {
-                            rl.DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, rl.GRAY)
-                        }
-                    }
+            if mouse_on_text {
+                if letter_count < MAX_INPUT {
+                    if (frames_counter/900)%2 == 0 {
+                        rl.DrawText("_", i32(text_box.x) + 8 + rl.MeasureText(c_name, 40), i32(text_box.y) + 12, 40, rl.MAROON)
+                    } 
+                } else {
+                    rl.DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, rl.GRAY)
                 }
-                tick_timer = TICK_RATE + tick_timer
             }
 
             
