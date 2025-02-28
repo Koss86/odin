@@ -68,8 +68,10 @@ main :: proc() {
     camera := rl.Camera2D {
         zoom = f32(WINDOW_SIZE)/CANVAS_SIZE
     }
+    
     rl.SetConfigFlags({.VSYNC_HINT})
     rl.InitWindow(WINDOW_SIZE,WINDOW_SIZE, "Hangman")
+
     for !rl.WindowShouldClose() {
         rl.BeginDrawing()
             rl.BeginMode2D(camera)
@@ -83,24 +85,26 @@ main :: proc() {
                     game_start = true
                 }
             } else {
-                pos := Vec2 { 4, GRID_WIDTH/2 }
+                pos := Vec2 { 5, GRID_WIDTH/2 }
                 rect := rl.Rectangle {
                     pos.x * CELL_SIZE, pos.y * CELL_SIZE,
                     CELL_SIZE*6, CELL_SIZE/2
                 }
-                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 }) 
-                pos += { 0, -7}
+                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 }) // Draw base.
+
+                pos += { 0, -7}                                  // Move y position up 7.
                 rect = rl.Rectangle {
                     pos.x * CELL_SIZE+CELL_SIZE/2, pos.y * CELL_SIZE,
-                    CELL_SIZE, CELL_SIZE*7
+                    CELL_SIZE/2, CELL_SIZE*7
                 }
-                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 })
-                pos += { 0, -1 }
+                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 }) // Draw Pole off of base.
+
+                pos += { 0, -1 }                                 // Move y position up 1.
                 rect = rl.Rectangle {
-                    pos.x * CELL_SIZE+CELL_SIZE+CELL_SIZE/2, pos.y * CELL_SIZE,
-                    CELL_SIZE, CELL_SIZE
+                    pos.x * CELL_SIZE+CELL_SIZE/2, pos.y * CELL_SIZE+CELL_SIZE/2,
+                    CELL_SIZE*4, CELL_SIZE/2
                 }
-                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 })
+                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 }) // Draw top brace.
             }
             
             
@@ -113,8 +117,9 @@ main :: proc() {
     /*
     fmt.print("Guess a letter: ")
     num_of_stdin, _ := os.read(os.stdin, buff[:])
-    for num_of_stdin != expected_leng || buff[0] == SPACE || 
-                          buff[0] >= '0' && buff[0] <= '9' {
+    for num_of_stdin != expected_leng || 
+        buff[0] == SPACE || 
+        buff[0] >= '0' && buff[0] <= '9' {
         fmt.printf("\nPlease guess one letter only, no spaces or numbers.\n\nGuess a letter: ")
         num_of_stdin, _ = os.read(os.stdin, buff[:])
     }

@@ -141,9 +141,9 @@ main :: proc() {
             }   
             score := snek_leng-3
             score_str := fmt.ctprintf("Score: %v", score)
+            rl.DrawText(score_str, 4, 299, 15, rl.GRAY)
 
             free_all(context.temp_allocator)
-            rl.DrawText(score_str, 4, 299, 15, rl.GRAY)
             rl.EndMode2D()
         rl.EndDrawing()
     }
