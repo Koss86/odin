@@ -4,9 +4,6 @@ import "core:fmt"
 import "core:strings"
 
 MAX_INPUT :: 9
-TICK_RATE :: 0.13
-
-tick_timer: f32 = TICK_RATE
 
 main :: proc() {
     screen_width: i32 = 800
