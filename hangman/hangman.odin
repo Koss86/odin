@@ -17,6 +17,7 @@ LINUX_NUM_RETURNS :: 2
 WINDOWS_NUM_RETURNS :: 3
 SPACE :: 32
 BANK_SIZE :: 20
+MAX_INPUT :: 1
 
 key: i32
 indx: int
@@ -26,6 +27,11 @@ answer: string
 game_over: bool
 game_start: bool
 word_bank: [BANK_SIZE] string
+name: [MAX_INPUT]byte
+c_name: cstring
+letter_count: i32
+mouse_on_text: bool
+frames_counter: i32
 
 random_num :: proc(min: int, max: int) -> i32 {
     min := i32(min)
@@ -68,11 +74,53 @@ main :: proc() {
     camera := rl.Camera2D {
         zoom = f32(WINDOW_SIZE)/CANVAS_SIZE
     }
+    text_box := rl.Rectangle {
+        10*CELL_SIZE , 11*CELL_SIZE,
+        125, 50 
+    }
     
     rl.SetConfigFlags({.VSYNC_HINT})
     rl.InitWindow(WINDOW_SIZE,WINDOW_SIZE, "Hangman")
 
     for !rl.WindowShouldClose() {
+
+/////////////////////// Update input box /////////////////////////////////////
+        if rl.CheckCollisionPointRec(rl.GetMousePosition(), text_box) {     //
+            mouse_on_text = true                                            //
+        } else {                                                            //
+            mouse_on_text = false                                           //
+        }                                                                   //
+                                                                            //
+        if mouse_on_text {                                                  //
+            rl.SetMouseCursor(.IBEAM)                                       //
+            key := rl.GetCharPressed()                                      //
+                                                                            //
+            for key > 0 {                                                   //
+                if key >= 32 && key <= 125 && letter_count < MAX_INPUT {    //
+                    name[letter_count] = u8(key)                            //
+                    letter_count += 1                                       //
+                }                                                           //
+                key = rl.GetCharPressed()                                   //
+            }                                                               //
+                                                                            //
+            if rl.IsKeyPressed(.BACKSPACE) {                                //
+                letter_count -= 1                                           //
+                if letter_count < 0 {                                       //
+                    letter_count = 0                                        //
+                }                                                           //
+                name[letter_count] = 0                                      //
+            }                                                               //
+        } else {                                                            //
+            rl.SetMouseCursor(.DEFAULT)                                     //
+        }                                                                   //
+                                                                            //
+        if mouse_on_text {                                                  //
+            frames_counter += 1                                             //
+        } else {                                                            //
+            frames_counter = 0                                              //
+        }                                                                   //
+//////////////////////////////////////////////////////////////////////////////
+
         rl.BeginDrawing()
             rl.BeginMode2D(camera)
             rl.ClearBackground({ 15, 30, 175, 255 })
@@ -97,7 +145,7 @@ main :: proc() {
                     pos.x * CELL_SIZE+CELL_SIZE/2, pos.y * CELL_SIZE,
                     CELL_SIZE/2, CELL_SIZE*7
                 }
-                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 }) // Draw Pole off of base.
+                rl.DrawRectangleRec(rect, { 210, 100, 75, 255 }) // Draw vertical pole.
 
                 pos += { 0, -1 }                                 // Move y position up 1.
                 rect = rl.Rectangle {
@@ -105,10 +153,34 @@ main :: proc() {
                     CELL_SIZE*4, CELL_SIZE/2
                 }
                 rl.DrawRectangleRec(rect, { 210, 100, 75, 255 }) // Draw top brace.
-            }
-            
-            
 
+
+/////////////////////////////// Draw Input Box ////////////////////////////////////////
+
+                rl.DrawRectangleRec(text_box, rl.LIGHTGRAY)
+
+                if mouse_on_text {
+                    rl.DrawRectangleLines(i32(text_box.x), i32(text_box.y), i32(text_box.width), i32(text_box.height), rl.RED)
+                } else {
+                    rl.DrawRectangleLines(i32(text_box.x), i32(text_box.y), i32(text_box.width), i32(text_box.height), rl.DARKGRAY)
+                }
+
+                tmp := string(name[:])
+                c_name = strings.clone_to_cstring(tmp, context.temp_allocator)
+
+                rl.DrawText(c_name, i32(text_box.x)+2, i32(text_box.y)+4, 40, rl.MAROON)
+                rl.DrawText(rl.TextFormat("Input Chars: %i/%i", letter_count, MAX_INPUT), 315, 250, 20, rl.DARKGRAY)
+
+                if mouse_on_text {
+                    if letter_count < MAX_INPUT {
+                        if (frames_counter/900)%2 == 0 {
+                            rl.DrawText("_", i32(text_box.x) + 8 + rl.MeasureText(c_name, 9), i32(text_box.y) + 12, 9, rl.MAROON)
+                        } 
+                    } else {
+                        rl.DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, rl.GRAY)
+                    }
+                }
+            }
             rl.EndMode2D()
         rl.EndDrawing()
     }
