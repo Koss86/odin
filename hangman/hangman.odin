@@ -17,7 +17,7 @@ LINUX_NUM_RETURNS :: 2
 WINDOWS_NUM_RETURNS :: 3
 SPACE :: 32
 BANK_SIZE :: 20
-MAX_INPUT :: 1
+MAX_INPUT :: 5
 
 key: i32
 indx: int
@@ -174,7 +174,7 @@ rl.BeginMode2D(camera)
                 if mouse_on_text {
                     if letter_count < MAX_INPUT {
                         if (frames_counter/900)%2 == 0 {
-                            rl.DrawText("_", i32(text_box.x) + 8 + rl.MeasureText(c_name, 9), i32(text_box.y) + 12, 9, rl.MAROON)
+                            rl.DrawText("_", i32(text_box.x) + 2 + rl.MeasureText(c_name, 9), i32(text_box.y) + 7, 9, rl.MAROON)
                         } 
                     } else {
                         rl.DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, rl.GRAY)
