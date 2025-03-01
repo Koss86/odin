@@ -17,7 +17,7 @@ LINUX_NUM_RETURNS :: 2
 WINDOWS_NUM_RETURNS :: 3
 SPACE :: 32
 BANK_SIZE :: 20
-MAX_INPUT :: 5
+MAX_INPUT :: 1
 
 key: i32
 indx: int
@@ -31,7 +31,7 @@ guess: [MAX_INPUT]byte
 c_guess: cstring
 letter_count: i32
 mouse_on_text: bool
-frames_counter: i32
+frames_counter: int
 
 random_num :: proc(min: int, max: int) -> i32 {
     min := i32(min)
@@ -60,13 +60,16 @@ main :: proc() {
     delete(buff)
     
     game_state()
+    divide_frames: int
     expected_leng: int
     os_platform := info.os_version.platform
     #partial switch os_platform {
         case .Linux:
         expected_leng = LINUX_NUM_RETURNS
+        divide_frames = 900
         case .Windows: 
         expected_leng = WINDOWS_NUM_RETURNS
+        divide_frames = 40
         case:
         fmt.printfln("Error. Unknown OS.")
         return
@@ -79,17 +82,17 @@ main :: proc() {
         8*CELL_SIZE , 12*CELL_SIZE,
         CELL_SIZE, CELL_SIZE 
     }
-    
+    collision_box := rl.Rectangle {
+        367, 550,
+        50, 50
+    }
+
     rl.SetConfigFlags({.VSYNC_HINT})
     rl.InitWindow(WINDOW_SIZE,WINDOW_SIZE, "Hangman")
 
     for !rl.WindowShouldClose() {
 
 /////////////////////// Update input box /////////////////////////////////////
-        collision_box := rl.Rectangle {
-            367, 505,
-            CELL_SIZE*2, CELL_SIZE
-        }
         mouse_pos := rl.GetMousePosition()
         if rl.CheckCollisionPointRec(mouse_pos, collision_box) {            //
             mouse_on_text = true                                            //
@@ -102,7 +105,7 @@ main :: proc() {
             key := rl.GetCharPressed()                                      //
                                                                             //
             for key > 0 {                                                   //
-                if key >= 32 && key <= 125 && letter_count < MAX_INPUT {    //
+                if key >= 33 && key <= 125 && letter_count < MAX_INPUT {    //
                     guess[letter_count] = u8(key)                           //
                     letter_count += 1                                       //
                 }                                                           //
@@ -174,13 +177,13 @@ main :: proc() {
                 c_guess = strings.clone_to_cstring(tmp, context.temp_allocator)
 
                 rl.DrawText(c_guess, i32(text_box.x)+2, i32(text_box.y)+4, 9, rl.MAROON)
-                rl.DrawText(rl.TextFormat("Input Chars: %i/%i", letter_count, MAX_INPUT), 175, 250, 20, rl.DARKGRAY)
+                rl.DrawText(rl.TextFormat("Input Chars: %i/%i", letter_count, MAX_INPUT), 101, 175, 10, rl.DARKGRAY)
 
                 if mouse_on_text {
                     if letter_count < MAX_INPUT {
-                        if (frames_counter/20)%2 == 0 {         // /900 for linux
+                        if (frames_counter/divide_frames)%2 == 0 {         // /900 for linux
                             rl.DrawText("_", i32(text_box.x) + 2 + rl.MeasureText(c_guess, 9), i32(text_box.y) + 7, 9, rl.MAROON)
-                            fmt.println(mouse_pos)
+                            //fmt.println(mouse_pos)
                         } 
                     } else {
                         rl.DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, rl.GRAY)
