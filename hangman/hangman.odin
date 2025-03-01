@@ -27,8 +27,8 @@ answer: string
 game_over: bool
 game_start: bool
 word_bank: [BANK_SIZE] string
-name: [MAX_INPUT]byte
-c_name: cstring
+guess: [MAX_INPUT]byte
+c_guess: cstring
 letter_count: i32
 mouse_on_text: bool
 frames_counter: i32
@@ -57,6 +57,7 @@ main :: proc() {
         word_bank[indx] = strings.clone(str, context.allocator)
         indx += 1
     }
+    delete(buff)
     
     game_state()
     expected_leng: int
@@ -75,8 +76,8 @@ main :: proc() {
         zoom = f32(WINDOW_SIZE)/CANVAS_SIZE
     }
     text_box := rl.Rectangle {
-        8*CELL_SIZE , 11*CELL_SIZE,
-        CELL_SIZE*2, CELL_SIZE 
+        8*CELL_SIZE , 12*CELL_SIZE,
+        CELL_SIZE, CELL_SIZE 
     }
     
     rl.SetConfigFlags({.VSYNC_HINT})
@@ -85,7 +86,12 @@ main :: proc() {
     for !rl.WindowShouldClose() {
 
 /////////////////////// Update input box /////////////////////////////////////
-        if rl.CheckCollisionPointRec(rl.GetMousePosition(), text_box) {     //
+        collision_box := rl.Rectangle {
+            367, 505,
+            CELL_SIZE*2, CELL_SIZE
+        }
+        mouse_pos := rl.GetMousePosition()
+        if rl.CheckCollisionPointRec(mouse_pos, collision_box) {            //
             mouse_on_text = true                                            //
         } else {                                                            //
             mouse_on_text = false                                           //
@@ -97,7 +103,7 @@ main :: proc() {
                                                                             //
             for key > 0 {                                                   //
                 if key >= 32 && key <= 125 && letter_count < MAX_INPUT {    //
-                    name[letter_count] = u8(key)                            //
+                    guess[letter_count] = u8(key)                           //
                     letter_count += 1                                       //
                 }                                                           //
                 key = rl.GetCharPressed()                                   //
@@ -108,7 +114,7 @@ main :: proc() {
                 if letter_count < 0 {                                       //
                     letter_count = 0                                        //
                 }                                                           //
-                name[letter_count] = 0                                      //
+                guess[letter_count] = 0                                     //
             }                                                               //
         } else {                                                            //
             rl.SetMouseCursor(.DEFAULT)                                     //
@@ -121,9 +127,9 @@ main :: proc() {
         }                                                                   //
 //////////////////////////////////////////////////////////////////////////////
 
-rl.BeginDrawing()
-rl.ClearBackground({ 15, 30, 175, 255 })
-rl.BeginMode2D(camera)
+        rl.BeginDrawing()
+            rl.ClearBackground({ 15, 30, 175, 255 })
+            rl.BeginMode2D(camera)
             //rl.ClearBackground(rl.BLUE)
 
             if !game_start {
@@ -155,8 +161,7 @@ rl.BeginMode2D(camera)
                 rl.DrawRectangleRec(rect, { 210, 100, 75, 255 }) // Draw top brace.
 
 
-/////////////////////////////// Draw Input Box //////////////////////////////////////////////////////////////////////////////////////////
-
+                /////////////////////////////////////// Draw Input Box /////////////////////////////////////////////////
                 rl.DrawRectangleRec(text_box, rl.LIGHTGRAY)
 
                 if mouse_on_text {
@@ -165,16 +170,17 @@ rl.BeginMode2D(camera)
                     rl.DrawRectangleLines(i32(text_box.x), i32(text_box.y), i32(text_box.width), i32(text_box.height), rl.DARKGRAY)
                 }
 
-                tmp := string(name[:])
-                c_name = strings.clone_to_cstring(tmp, context.temp_allocator)
+                tmp := string(guess[:])
+                c_guess = strings.clone_to_cstring(tmp, context.temp_allocator)
 
-                rl.DrawText(c_name, i32(text_box.x)+2, i32(text_box.y)+4, 9, rl.MAROON)
-                rl.DrawText(rl.TextFormat("Input Chars: %i/%i", letter_count, MAX_INPUT), 315, 250, 20, rl.DARKGRAY)
+                rl.DrawText(c_guess, i32(text_box.x)+2, i32(text_box.y)+4, 9, rl.MAROON)
+                rl.DrawText(rl.TextFormat("Input Chars: %i/%i", letter_count, MAX_INPUT), 175, 250, 20, rl.DARKGRAY)
 
                 if mouse_on_text {
                     if letter_count < MAX_INPUT {
-                        if (frames_counter/900)%2 == 0 {
-                            rl.DrawText("_", i32(text_box.x) + 2 + rl.MeasureText(c_name, 9), i32(text_box.y) + 7, 9, rl.MAROON)
+                        if (frames_counter/20)%2 == 0 {         // /900 for linux
+                            rl.DrawText("_", i32(text_box.x) + 2 + rl.MeasureText(c_guess, 9), i32(text_box.y) + 7, 9, rl.MAROON)
+                            fmt.println(mouse_pos)
                         } 
                     } else {
                         rl.DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, rl.GRAY)
@@ -186,26 +192,4 @@ rl.BeginMode2D(camera)
         rl.EndDrawing()
     }
     rl.CloseWindow()
-
-    /*
-    fmt.print("Guess a letter: ")
-    num_of_stdin, _ := os.read(os.stdin, buff[:])
-    for num_of_stdin != expected_leng || 
-        buff[0] == SPACE || 
-        buff[0] >= '0' && buff[0] <= '9' {
-        fmt.printf("\nPlease guess one letter only, no spaces or numbers.\n\nGuess a letter: ")
-        num_of_stdin, _ = os.read(os.stdin, buff[:])
-    }
-
-    tmp_str := string(buff[:])
-    
-    #partial switch os_platform {
-        case .Linux:
-        indx = bytes.index_byte(buff[:], 10)
-        case .Windows: 
-        indx = bytes.index_byte(buff[:], 13)
-    }
-    guess := tmp_str[:indx]
-    fmt.println(guess)
-    */
 }
