@@ -13,8 +13,8 @@ WINDOW_SIZE :: 920
 GRID_WIDTH :: 20
 CELL_SIZE :: 16
 CANVAS_SIZE :: GRID_WIDTH*CELL_SIZE
-LINUX_NUM_RETURNS :: 2
-WINDOWS_NUM_RETURNS :: 3
+LINUX_NUM :: 900
+WINDOWS_NUM :: 40
 SPACE :: 32
 BANK_SIZE :: 20
 MAX_INPUT :: 1
@@ -23,7 +23,7 @@ key: i32
 indx: int
 guesses: int
 correct: int
-answer: string
+answer: cstring
 game_over: bool
 game_start: bool
 word_bank: [BANK_SIZE] string
@@ -32,6 +32,7 @@ c_guess: cstring
 letter_count: i32
 mouse_on_text: bool
 frames_counter: int
+valid_guess: bool
 
 random_num :: proc(min: int, max: int) -> i32 {
     min := i32(min)
@@ -42,10 +43,9 @@ random_num :: proc(min: int, max: int) -> i32 {
 }
 game_state :: proc() {
     key = random_num(0, BANK_SIZE-1)
-    answer = word_bank[key]
+    answer = strings.clone_to_cstring(word_bank[key], context.allocator)
     guesses = 6
     correct = 0
-    indx = 0
     game_over = false
 }
 
@@ -61,18 +61,14 @@ main :: proc() {
     
     game_state()
     divide_frames: int
-    expected_leng: int
     os_platform := info.os_version.platform
     #partial switch os_platform {
         case .Linux:
-        expected_leng = LINUX_NUM_RETURNS
-        divide_frames = 900
-        case .Windows: 
-        expected_leng = WINDOWS_NUM_RETURNS
-        divide_frames = 40
+        divide_frames = LINUX_NUM
+        case .Windows:
+        divide_frames = WINDOWS_NUM
         case:
-        fmt.printfln("Error. Unknown OS.")
-        return
+        panic("Error. Unknown OS.")
     }
 
     camera := rl.Camera2D {
@@ -80,7 +76,7 @@ main :: proc() {
     }
     text_box := rl.Rectangle {
         8*CELL_SIZE , 12*CELL_SIZE,
-        CELL_SIZE, CELL_SIZE 
+        CELL_SIZE-4, CELL_SIZE-4 
     }
     collision_box := rl.Rectangle {
         367, 550,
@@ -88,46 +84,51 @@ main :: proc() {
     }
 
     rl.SetConfigFlags({.VSYNC_HINT})
-    rl.InitWindow(WINDOW_SIZE,WINDOW_SIZE, "Hangman")
+    rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Hangman")
 
     for !rl.WindowShouldClose() {
 
 /////////////////////// Update input box /////////////////////////////////////
         mouse_pos := rl.GetMousePosition()
-        if rl.CheckCollisionPointRec(mouse_pos, collision_box) {            //
-            mouse_on_text = true                                            //
-        } else {                                                            //
-            mouse_on_text = false                                           //
-        }                                                                   //
-                                                                            //
-        if mouse_on_text {                                                  //
-            rl.SetMouseCursor(.IBEAM)                                       //
-            key := rl.GetCharPressed()                                      //
-                                                                            //
-            for key > 0 {                                                   //
-                if key >= 33 && key <= 125 && letter_count < MAX_INPUT {    //
-                    guess[letter_count] = u8(key)                           //
-                    letter_count += 1                                       //
-                }                                                           //
-                key = rl.GetCharPressed()                                   //
-            }                                                               //
-                                                                            //
-            if rl.IsKeyPressed(.BACKSPACE) {                                //
-                letter_count -= 1                                           //
-                if letter_count < 0 {                                       //
-                    letter_count = 0                                        //
-                }                                                           //
-                guess[letter_count] = 0                                     //
-            }                                                               //
-        } else {                                                            //
-            rl.SetMouseCursor(.DEFAULT)                                     //
-        }                                                                   //
-                                                                            //
-        if mouse_on_text {                                                  //
-            frames_counter += 1                                             //
-        } else {                                                            //
-            frames_counter = 0                                              //
-        }                                                                   //
+        if rl.CheckCollisionPointRec(mouse_pos, collision_box) {            
+            mouse_on_text = true                                            
+        } else {                                                            
+            mouse_on_text = false                                           
+        }                                                                   
+
+        r := rl.GetCharPressed()   
+        for r > 0 {                                                       
+            if r >= 33 && r <= 125 && letter_count < MAX_INPUT {        
+                guess[letter_count] = u8(r)                               
+                letter_count += 1                                           
+            }                                                               
+            r = rl.GetCharPressed()                                       
+        }                                                                   
+                                                                            
+        if rl.IsKeyPressed(.BACKSPACE) {                                    
+            letter_count -= 1                                               
+            if letter_count < 0 {                                           
+                letter_count = 0                                            
+            }                                                               
+            guess[letter_count] = 0                                         
+        }
+        // Check guess //
+        if letter_count > 0 {
+            tmp := strings.to_lower(guess, context.temp_allocator)
+            if tmp[0] >= 'a' && tmp[0] <= 'z' {
+                valid_guess = true
+            } else {
+                valid_guess = false
+            }
+        }
+                                                                            
+        if mouse_on_text {                                                  
+            rl.SetMouseCursor(.IBEAM)                                       
+                                                                            
+        } else {                                                            
+            rl.SetMouseCursor(.DEFAULT)                                     
+        }                                                 
+        frames_counter += 1                                             
 //////////////////////////////////////////////////////////////////////////////
 
         rl.BeginDrawing()
@@ -166,31 +167,26 @@ main :: proc() {
 
                 /////////////////////////////////////// Draw Input Box /////////////////////////////////////////////////
                 rl.DrawRectangleRec(text_box, rl.LIGHTGRAY)
-
-                if mouse_on_text {
-                    rl.DrawRectangleLines(i32(text_box.x), i32(text_box.y), i32(text_box.width), i32(text_box.height), rl.RED)
-                } else {
-                    rl.DrawRectangleLines(i32(text_box.x), i32(text_box.y), i32(text_box.width), i32(text_box.height), rl.DARKGRAY)
-                }
+                rl.DrawRectangleLines(i32(text_box.x), i32(text_box.y), i32(text_box.width), i32(text_box.height), rl.RED)
 
                 tmp := string(guess[:])
                 c_guess = strings.clone_to_cstring(tmp, context.temp_allocator)
 
-                rl.DrawText(c_guess, i32(text_box.x)+2, i32(text_box.y)+4, 9, rl.MAROON)
+                rl.DrawText(c_guess, i32(text_box.x)+2, i32(text_box.y)+1, 9, rl.MAROON)
                 rl.DrawText(rl.TextFormat("Input Chars: %i/%i", letter_count, MAX_INPUT), 101, 175, 10, rl.DARKGRAY)
 
-                if mouse_on_text {
-                    if letter_count < MAX_INPUT {
-                        if (frames_counter/divide_frames)%2 == 0 {         // /900 for linux
-                            rl.DrawText("_", i32(text_box.x) + 2 + rl.MeasureText(c_guess, 9), i32(text_box.y) + 7, 9, rl.MAROON)
-                            //fmt.println(mouse_pos)
-                        } 
-                    } else {
-                        rl.DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, rl.GRAY)
-                    }
+                if letter_count < MAX_INPUT {
+                    if (frames_counter/divide_frames)%2 == 0 {
+                        rl.DrawText("_", i32(text_box.x) + 2 + rl.MeasureText(c_guess, 9), i32(text_box.y) + 3, 9, rl.MAROON)
+                    } 
+                } else {
+                    rl.DrawText("Press BACKSPACE to delete chars or ENTER to confirm...", 10, 215, 5, rl.GRAY)
+                    frames_counter = 0
                 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
+            free_all(context.temp_allocator)
             rl.EndMode2D()
         rl.EndDrawing()
     }
