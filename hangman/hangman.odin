@@ -13,7 +13,7 @@ WINDOW_SIZE :: 920
 GRID_WIDTH :: 20
 CELL_SIZE :: 16
 CANVAS_SIZE :: GRID_WIDTH*CELL_SIZE
-LINUX_NUM :: 900
+LINUX_NUM :: 40
 WINDOWS_NUM :: 40
 SPACE :: 32
 BANK_SIZE :: 20
@@ -85,7 +85,7 @@ main :: proc() {
 
     rl.SetConfigFlags({.VSYNC_HINT})
     rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Hangman")
-
+    rl.SetTargetFPS(60)
     for !rl.WindowShouldClose() {
 
 /////////////////////// Update input box /////////////////////////////////////
@@ -112,16 +112,19 @@ main :: proc() {
             }                                                               
             guess[letter_count] = 0                                         
         }
-        // Check guess //
+        //////////// Check guess ////////////
         if letter_count > 0 {
-            tmp := strings.to_lower(guess, context.temp_allocator)
+            tmp := strings.to_lower(string(guess[:]), context.temp_allocator)
             if tmp[0] >= 'a' && tmp[0] <= 'z' {
                 valid_guess = true
+                fmt.println(string(tmp))
             } else {
                 valid_guess = false
             }
         }
-                                                                            
+        if valid_guess {
+            //fmt.println(string(guess[:]))
+        }                                                              
         if mouse_on_text {                                                  
             rl.SetMouseCursor(.IBEAM)                                       
                                                                             
@@ -173,10 +176,10 @@ main :: proc() {
                 c_guess = strings.clone_to_cstring(tmp, context.temp_allocator)
 
                 rl.DrawText(c_guess, i32(text_box.x)+2, i32(text_box.y)+1, 9, rl.MAROON)
-                rl.DrawText(rl.TextFormat("Input Chars: %i/%i", letter_count, MAX_INPUT), 101, 175, 10, rl.DARKGRAY)
+                rl.DrawText(rl.TextFormat("Attempts/Total:\n %i/%i", correct, len(answer)), 101, 175, 10, rl.DARKGRAY)
 
                 if letter_count < MAX_INPUT {
-                    if (frames_counter/divide_frames)%2 == 0 {
+                    if (frames_counter/40)%2 == 0 {
                         rl.DrawText("_", i32(text_box.x) + 2 + rl.MeasureText(c_guess, 9), i32(text_box.y) + 3, 9, rl.MAROON)
                     } 
                 } else {
