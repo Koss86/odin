@@ -86,8 +86,6 @@ main :: proc() {
                     rl.DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, rl.GRAY)
                 }
             }
-
-            
             free_all(context.temp_allocator)
         rl.EndDrawing()
     }
