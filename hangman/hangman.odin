@@ -85,7 +85,9 @@ main :: proc() {
 
     rl.SetConfigFlags({.VSYNC_HINT})
     rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Hangman")
+
     rl.SetTargetFPS(60)
+    
     for !rl.WindowShouldClose() {
 
 /////////////////////// Update input box /////////////////////////////////////
