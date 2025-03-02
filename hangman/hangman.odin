@@ -24,10 +24,14 @@ guesses: int
 correct: int
 game_over: bool
 game_start: bool
-answer: cstring
+prev_guess: bool
+answer: string
+c_answer: cstring
+ans_board_cstr: cstring
 ans_len: int
 ans_board: []byte
 word_bank: [BANK_SIZE] string
+rune_indx: []int
 
 random_num :: proc(min: int, max: int) -> i32 {
     min := i32(min)
@@ -43,20 +47,23 @@ game_state :: proc() {
     }
     key = random_num(0, BANK_SIZE-1)
     ans_len = len(word_bank[key])
-    answer = strings.clone_to_cstring(word_bank[key], context.allocator)
+    answer = word_bank[key]
+    c_answer = strings.clone_to_cstring(word_bank[key], context.allocator)
     guesses = 6
     correct = 0
     game_over = false
-
-    ans_board = make([]byte, ans_len+(ans_len-1), context.allocator)
+    ans_board = make([]byte, ans_len+(ans_len-1), context.temp_allocator)
     for i: int; i < len(ans_board); i += 2 {
         ans_board[i] = '_'
         if i != len(ans_board)-1 {
             ans_board[i+1] = 32
         }
     }
-    fmt.printfln("%s %i", ans_board, ans_len)
+    tmp := strings.clone_from_bytes(ans_board, context.temp_allocator)
+    ans_board_cstr = strings.clone_to_cstring(tmp, context.allocator)
+    seen_chars = {} // not sure if this works
 }
+seen_chars := make(map[u8]bool)
 main :: proc() {
     c_guess: cstring
     tmp_str: string
@@ -67,7 +74,6 @@ main :: proc() {
     divide_frames: int
     guess_buff: [MAX_INPUT]byte
     os_platform := info.os_version.platform
-    seen_chars := make(map[u8]bool, context.allocator)
     #partial switch os_platform {
         case .Linux:
         divide_frames = LINUX_NUM
@@ -151,8 +157,22 @@ main :: proc() {
                 valid_guess = false
             }  
         }
+
         if valid_guess {
-            
+            if rl.IsKeyDown(.ENTER) {
+                if !seen_chars[guess] {
+                    seen_chars[guess] = true
+                    tmp := rune(guess)
+                    if strings.contains_rune(answer, tmp) {
+                        fmt.printfln("%i in %s", tmp, answer)
+                        place_letter(tmp)
+                    } else {
+                        fmt.println("Not in answer.")
+                    }
+                } else {
+                  
+                }
+            }
         } 
 /////////////////////////////////////////////////////
 
@@ -189,16 +209,17 @@ main :: proc() {
                 }
                 rl.DrawRectangleRec(rect, { 210, 100, 75, 255 }) // Draw top brace.
 
-/////////////////////////////////////// Draw Input Box and UI Text /////////////////////////////////////////////////
+/////////////////////////////////////// Draw Input Box and UI /////////////////////////////////////////////////
 
                 rl.DrawRectangleRec(text_box, rl.LIGHTGRAY)
                 rl.DrawRectangleLines(i32(text_box.x), i32(text_box.y), i32(text_box.width), i32(text_box.height), rl.RED)
-                rl.DrawRectangleLinesEx({ 13*CELL_SIZE, 3*CELL_SIZE, 83, 13 }, 1, { 210, 100, 75, 255 })
+                rl.DrawRectangleLinesEx({ 13*CELL_SIZE, 3*CELL_SIZE, 83, 13 }, .8, { 210, 100, 75, 255 })
 
                 tmp_str = string(guess_buff[:])
                 c_guess = strings.clone_to_cstring(tmp_str, context.temp_allocator)
 
-                rl.DrawText(rl.TextFormat("Correct/Total\n         %i/%i", correct, len(answer)), 13*CELL_SIZE+3, 3*CELL_SIZE+2, 10, rl.GRAY)
+                rl.DrawText(rl.TextFormat("Correct/Total\n       %i/%i", correct, len(answer)), 13*CELL_SIZE+3, 3*CELL_SIZE+2, 10, rl.GRAY)
+                rl.DrawText(ans_board_cstr, i32(text_box.x-16), i32(text_box.y)-10, 10, rl.BLACK)
                 
                 if letter_count < MAX_INPUT {
                     if (frames_counter/divide_frames)%2 == 0 {
@@ -223,4 +244,16 @@ main :: proc() {
         rl.EndDrawing()
     }
     rl.CloseWindow()
+}
+place_letter :: proc(find: rune) {
+    indx1: int
+    indx2: int
+    for r in answer {
+      if find == r {
+        rune_indx[indx2] = indx1
+        indx2 += 1
+    }  
+    indx1 += 1
+    }
+    
 }
