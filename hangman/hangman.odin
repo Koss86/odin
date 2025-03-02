@@ -13,7 +13,7 @@ WINDOW_SIZE :: 920
 GRID_WIDTH :: 20
 CELL_SIZE :: 16
 CANVAS_SIZE :: GRID_WIDTH*CELL_SIZE
-LINUX_NUM :: 40
+LINUX_NUM :: 30
 WINDOWS_NUM :: 30
 SPACE :: 32
 BANK_SIZE :: 20
@@ -31,7 +31,7 @@ ans_board_cstr: cstring
 ans_len: int
 ans_board: []byte
 word_bank: [BANK_SIZE] string
-rune_indx: []int
+rune_indx: [15]int
 
 random_num :: proc(min: int, max: int) -> i32 {
     min := i32(min)
@@ -164,10 +164,10 @@ main :: proc() {
                     seen_chars[guess] = true
                     tmp := rune(guess)
                     if strings.contains_rune(answer, tmp) {
-                        fmt.printfln("%i in %s", tmp, answer)
-                        place_letter(tmp)
+                        fmt.printfln("%r in %s", tmp, answer)
+                        place_letter_in_ans_board(tmp)
                     } else {
-                        fmt.println("Not in answer.")
+                        fmt.println("Not in answer: .", answer)
                     }
                 } else {
                   
@@ -245,13 +245,15 @@ main :: proc() {
     }
     rl.CloseWindow()
 }
-place_letter :: proc(find: rune) {
+place_letter_in_ans_board :: proc(find: rune) {
     indx1: int
     indx2: int
     for r in answer {
       if find == r {
+        ans_board_cstr[indx1*2] = r
         rune_indx[indx2] = indx1
         indx2 += 1
+        fmt.printfln("Found in %s indx %v", answer, indx1)
     }  
     indx1 += 1
     }
