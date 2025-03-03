@@ -7,6 +7,8 @@ import "core:sys/info"
 import rl "vendor:raylib"
 
 Vec2 :: rl.Vector2
+BACKGROUND_COLOR :: rl.Color { 15, 30, 175, 255 }
+ORANGE_CLR :: rl.Color { 210, 100, 75, 255 }
 WINDOW_SIZE :: 920
 GRID_WIDTH :: 20
 CELL_SIZE :: 16
@@ -106,7 +108,7 @@ main :: proc() {
     for !rl.WindowShouldClose() {
         
         rl.BeginDrawing()
-        rl.ClearBackground({ 15, 30, 175, 255 })
+        rl.ClearBackground(BACKGROUND_COLOR)
         rl.BeginMode2D(camera)
         //rl.ClearBackground(rl.BLUE)
 
