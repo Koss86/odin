@@ -104,9 +104,6 @@ main :: proc() {
 
         draw_board()
 
-        
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         free_all(context.temp_allocator)
         rl.EndMode2D()
         rl.EndDrawing()
@@ -115,8 +112,46 @@ main :: proc() {
     rl.CloseWindow()
 }
 draw_text :: proc() {
+    
+    rl.DrawRectangleRec(text_box, rl.LIGHTGRAY)
+    rl.DrawRectangleLines(i32(text_box.x), i32(text_box.y), i32(text_box.width), i32(text_box.height), rl.RED)
+    rl.DrawRectangleLinesEx({ 13*CELL_SIZE, 3*CELL_SIZE, 83, 13 }, .8, { 210, 100, 75, 255 })
+        
+    rl.DrawText(rl.TextFormat("Correct/Total\n       %i/%i", correct, len(answer)), 13*CELL_SIZE+3, 3*CELL_SIZE+2, 10, rl.GRAY)
+    
+    tmp := strings.clone_from_bytes(ans_board, context.temp_allocator)
+    ans_board_cstr := strings.clone_to_cstring(tmp, context.temp_allocator)
+    rl.DrawText(ans_board_cstr, i32(text_box.x-16), i32(text_box.y)-10, 10, rl.BLACK)
+    
+    lives_str := fmt.ctprintf("Lives: %i", lives)
+    rl.DrawText(lives_str, 2, 2, 10, rl.MAROON)
+    
+    tmp_str := string(guess_buff[:])
+    c_guess := strings.clone_to_cstring(tmp_str, context.temp_allocator)
+    if letter_count < MAX_INPUT {
+        if (frames_counter/divide_frames)%2 == 0 {
+            rl.DrawText("_", i32(text_box.x) + 2 + rl.MeasureText(c_guess, 9), i32(text_box.y) + 3, 9, rl.MAROON)
+        } 
+        rl.DrawText("Guess a letter.", i32(text_box.x)-32, i32(text_box.y)+13, 10, rl.GRAY)
+    } else {
+        rl.DrawText(c_guess, i32(text_box.x)+3, i32(text_box.y)+1, 9, rl.MAROON)
+        if valid_guess {
+            if seen_runes[guess] {
+                rl.DrawText("This has been guessed before.", 80, 205, 5, rl.MAROON)
+                rl.DrawText("Press ENTER to try again.", 80, 215, 5, rl.MAROON)
+            } else {
+                rl.DrawText("Press Enter to confirm,", 80, 205, 5, rl.GRAY)
+                rl.DrawText("or BACKSPACE to delete.", 80, 215, 5, rl.GRAY)
+            }
+        } else {
+            rl.DrawText("Not a valid guess.", 100, 205, 5, rl.MAROON)
+            rl.DrawText("Press ENTER to try again...", 55, 215, 5, rl.MAROON)
+        }
+        frames_counter = 0
+    }
 
 }
+
 draw_board :: proc() {
     if !game_start {
         rl.DrawText("Welcome to Hangman!", 38, 120, 25, ORANGE_CLR)
@@ -145,46 +180,11 @@ draw_board :: proc() {
             }
             rl.DrawRectangleRec(rect, ORANGE_CLR) // Draw top brace.
 
-
-            rl.DrawRectangleRec(text_box, rl.LIGHTGRAY)
-            rl.DrawRectangleLines(i32(text_box.x), i32(text_box.y), i32(text_box.width), i32(text_box.height), rl.RED)
-            rl.DrawRectangleLinesEx({ 13*CELL_SIZE, 3*CELL_SIZE, 83, 13 }, .8, { 210, 100, 75, 255 })
-                
-            rl.DrawText(rl.TextFormat("Correct/Total\n       %i/%i", correct, len(answer)), 13*CELL_SIZE+3, 3*CELL_SIZE+2, 10, rl.GRAY)
-            
-            tmp := strings.clone_from_bytes(ans_board, context.temp_allocator)
-            ans_board_cstr := strings.clone_to_cstring(tmp, context.temp_allocator)
-            rl.DrawText(ans_board_cstr, i32(text_box.x-16), i32(text_box.y)-10, 10, rl.BLACK)
-
-            lives_str := fmt.ctprintf("Lives: %i", lives)
-            rl.DrawText(lives_str, 2, 2, 10, rl.MAROON)
-
-            tmp_str := string(guess_buff[:])
-            c_guess := strings.clone_to_cstring(tmp_str, context.temp_allocator)
-            if letter_count < MAX_INPUT {
-                if (frames_counter/divide_frames)%2 == 0 {
-                    rl.DrawText("_", i32(text_box.x) + 2 + rl.MeasureText(c_guess, 9), i32(text_box.y) + 3, 9, rl.MAROON)
-                } 
-                rl.DrawText("Guess a letter.", i32(text_box.x)-32, i32(text_box.y)+13, 10, rl.GRAY)
-            } else {
-                rl.DrawText(c_guess, i32(text_box.x)+3, i32(text_box.y)+1, 9, rl.MAROON)
-                if valid_guess {
-                    if seen_runes[guess] {
-                        rl.DrawText("This has been guessed before.", 80, 205, 5, rl.MAROON)
-                        rl.DrawText("Press ENTER to try again.", 80, 215, 5, rl.MAROON)
-                    } else {
-                        rl.DrawText("Press Enter to confirm,", 80, 205, 5, rl.GRAY)
-                        rl.DrawText("or BACKSPACE to delete.", 80, 215, 5, rl.GRAY)
-                    }
-                } else {
-                    rl.DrawText("Not a valid guess.", 100, 205, 5, rl.MAROON)
-                    rl.DrawText("Press ENTER to try again...", 55, 215, 5, rl.MAROON)
-                }
-                frames_counter = 0
-            }
+            draw_text()
         }
     }
 }
+
 handle_input :: proc() {
     r := rl.GetCharPressed()   
         for r > 0 {                                                       
@@ -233,7 +233,7 @@ handle_input :: proc() {
                         guess_buff[0] = 0
                         letter_count = 0
                     } else {
-                        fmt.println("Not in answer:", answer)
+                        fmt.printfln("%c Not in answer: %s", guess_buff[0], answer)
                         guess_buff[0] = 0
                         letter_count = 0
                         lives -= 1
@@ -250,6 +250,7 @@ handle_input :: proc() {
             }
         }
 }
+
 place_found_rune :: proc(find: rune) {
     indx1: int
     indx2: int
@@ -259,12 +260,13 @@ place_found_rune :: proc(find: rune) {
         rune_indx[indx2] = indx1
         indx2 += 1
         correct += 1
-        fmt.printfln("Found in %s indx %v", answer, indx1)
+        fmt.printfln("%r Found in %s at position %v", find, answer, indx1+1)
     }  
     indx1 += 1
     }
     
 }
+
 random_num :: proc(min: int, max: int) -> i32 {
     min := i32(min)
     max := i32(max)
@@ -272,6 +274,7 @@ random_num :: proc(min: int, max: int) -> i32 {
     rl.SetRandomSeed(seed)
     return rl.GetRandomValue(min, max)
 }
+
 game_state :: proc() {
     if game_start {
         delete(answer)
