@@ -38,7 +38,7 @@ guess_buff: [MAX_INPUT]byte
 word_bank: [BANK_SIZE] string
 seen_runes := make(map[u8]bool)
 text_box := rl.Rectangle {
-    8*CELL_SIZE , 12*CELL_SIZE,
+    8*CELL_SIZE+CELL_SIZE*0.5, 14*CELL_SIZE,
     CELL_SIZE-4, CELL_SIZE-4 
 }
 
@@ -87,23 +87,27 @@ main :: proc() {
         if lives < 1 {
             game_over = true
         }
-        if game_over {
-            rl.DrawText("        Game Over\nPress ENTER to play again.", GRID_WIDTH/2, GRID_WIDTH/2, 20, rl.MAROON)
-            if rl.IsKeyPressed(.ENTER) {
-                game_state()
-            }
-        } 
         mouse_pos := rl.GetMousePosition()
         if rl.CheckCollisionPointRec({ mouse_pos.x/2.865, mouse_pos.y/2.865 }, text_box) {            
             mouse_on_text = true                                            
         } else {                                                            
             mouse_on_text = false                                           
         }
-
+        
         handle_input()
-
+        check_guess()
         draw_board()
 
+        if game_start && !game_over { 
+            draw_text() 
+        }
+        if game_over {
+            rl.DrawText("        Game Over\nPress ENTER to play again.", GRID_WIDTH/2, GRID_WIDTH/2, 20, rl.MAROON)
+            if rl.IsKeyPressed(.ENTER) {
+                game_state()
+            }
+        } 
+        
         free_all(context.temp_allocator)
         rl.EndMode2D()
         rl.EndDrawing()
@@ -121,7 +125,7 @@ draw_text :: proc() {
     
     tmp := strings.clone_from_bytes(ans_board, context.temp_allocator)
     ans_board_cstr := strings.clone_to_cstring(tmp, context.temp_allocator)
-    rl.DrawText(ans_board_cstr, i32(text_box.x-16), i32(text_box.y)-10, 10, rl.BLACK)
+    rl.DrawText(ans_board_cstr, i32(text_box.x-25), i32(text_box.y)-35, 10, rl.BLACK)
     
     lives_str := fmt.ctprintf("Lives: %i", lives)
     rl.DrawText(lives_str, 2, 2, 10, rl.MAROON)
@@ -137,118 +141,154 @@ draw_text :: proc() {
         rl.DrawText(c_guess, i32(text_box.x)+3, i32(text_box.y)+1, 9, rl.MAROON)
         if valid_guess {
             if seen_runes[guess] {
-                rl.DrawText("This has been guessed before.", 80, 205, 5, rl.MAROON)
-                rl.DrawText("Press ENTER to try again.", 80, 215, 5, rl.MAROON)
+                rl.DrawText("Already been guessed.", i32(text_box.x)-38, i32(text_box.y)+13, 10, rl.MAROON)
+                rl.DrawText("Press ENTER to try again.", i32(text_box.x)-38, i32(text_box.y)+24, 10, rl.MAROON)
             } else {
-                rl.DrawText("Press Enter to confirm,", 80, 205, 5, rl.GRAY)
-                rl.DrawText("or BACKSPACE to delete.", 80, 215, 5, rl.GRAY)
+                rl.DrawText("Press Enter to confirm,", i32(text_box.x)-38, i32(text_box.y)+13, 10, rl.GRAY)
+                rl.DrawText("or BACKSPACE to delete.", i32(text_box.x)-38, i32(text_box.y)+24, 10, rl.GRAY)
             }
         } else {
-            rl.DrawText("Not a valid guess.", 100, 205, 5, rl.MAROON)
-            rl.DrawText("Press ENTER to try again...", 55, 215, 5, rl.MAROON)
+            rl.DrawText("Not a valid guess.", i32(text_box.x)-38, i32(text_box.y)+13, 10, rl.MAROON)
+            rl.DrawText("Press ENTER to try again...", i32(text_box.x)-38, i32(text_box.y)+24, 10, rl.MAROON)
         }
         frames_counter = 0
     }
 
 }
 
+draw_head :: proc() {
+    rl.DrawCircleLines(CELL_SIZE*9+2, CELL_SIZE*5-6, 10, ORANGE_CLR)
+    rl.DrawCircleLines(CELL_SIZE*9+2, CELL_SIZE*5-6, 9.75, ORANGE_CLR)
+    rl.DrawCircleLines(CELL_SIZE*9+2, CELL_SIZE*5-6, 9.5, ORANGE_CLR)
+    rl.DrawCircleLines(CELL_SIZE*9+2, CELL_SIZE*5-6, 9.25, ORANGE_CLR)
+    rl.DrawCircleLines(CELL_SIZE*9+2, CELL_SIZE*5-6, 9, ORANGE_CLR)
+}
+
 draw_board :: proc() {
-    if !game_start {
+    pos := Vec2 { 5, GRID_WIDTH/2 }
+    rect := rl.Rectangle {
+        pos.x * CELL_SIZE, pos.y * CELL_SIZE,
+        CELL_SIZE*6, CELL_SIZE/2
+    }
+    rl.DrawRectangleRec(rect, ORANGE_CLR) // Draw base.
+
+    pos += { 0, -7}                                  // Move y position up 7.
+    rect = rl.Rectangle {
+        pos.x * CELL_SIZE+CELL_SIZE/2, pos.y * CELL_SIZE,
+        CELL_SIZE/2, CELL_SIZE*7
+    }
+    rl.DrawRectangleRec(rect, ORANGE_CLR) // Draw vertical pole.
+    pos += { 0, -1 }                                 // Move y position up 1.
+    rect = rl.Rectangle {
+        pos.x * CELL_SIZE+CELL_SIZE/2, pos.y * CELL_SIZE+CELL_SIZE/2,
+        CELL_SIZE*4, CELL_SIZE/2
+    }
+    pos.x = rect.x
+    pos.y = rect.y
+    rl.DrawRectangleRec(rect, ORANGE_CLR) // Draw top brace.
+
+    if !game_start && !game_over {
         rl.DrawText("Welcome to Hangman!", 38, 120, 25, ORANGE_CLR)
         rl.DrawText("Press SPACE to begin.", 96, 145, 9, ORANGE_CLR)
-        if rl.IsKeyPressed(.SPACE) {
+        if rl.IsKeyPressed(.SPACE) || rl.IsKeyPressed(.ENTER) {
             game_start = true
         }
     } else {
         if !game_over {
-            pos := Vec2 { 5, GRID_WIDTH/2 }
-            rect := rl.Rectangle {
-                pos.x * CELL_SIZE, pos.y * CELL_SIZE,
-                CELL_SIZE*6, CELL_SIZE/2
-            }
-            rl.DrawRectangleRec(rect, ORANGE_CLR) // Draw base.
-            pos += { 0, -7}                                  // Move y position up 7.
-            rect = rl.Rectangle {
-                pos.x * CELL_SIZE+CELL_SIZE/2, pos.y * CELL_SIZE,
-                CELL_SIZE/2, CELL_SIZE*7
-            }
-            rl.DrawRectangleRec(rect, ORANGE_CLR) // Draw vertical pole.
-            pos += { 0, -1 }                                 // Move y position up 1.
-            rect = rl.Rectangle {
-                pos.x * CELL_SIZE+CELL_SIZE/2, pos.y * CELL_SIZE+CELL_SIZE/2,
-                CELL_SIZE*4, CELL_SIZE/2
-            }
-            rl.DrawRectangleRec(rect, ORANGE_CLR) // Draw top brace.
+            
+            switch lives {
+                case 0:
 
-            draw_text()
+                case 1:
+
+                case 2:
+
+                case 3:
+
+                case 4:
+
+                case 5:
+                    rect = rl.Rectangle {
+                        pos.x + CELL_SIZE*3+CELL_SIZE*0.5, pos.y,
+                        CELL_SIZE/4, CELL_SIZE*1.5
+                    }
+                    rl.DrawRectangleRec(rect, ORANGE_CLR) // draw rope
+                    draw_head()
+                case 6:
+                    rect = rl.Rectangle {
+                        pos.x + CELL_SIZE*3+CELL_SIZE*0.5, pos.y,
+                        CELL_SIZE/4, CELL_SIZE*1.5
+                    }
+                    rl.DrawRectangleRec(rect, ORANGE_CLR) // draw rope
+            }
         }
     }
 }
 
 handle_input :: proc() {
     r := rl.GetCharPressed()   
-        for r > 0 {                                                       
-            if r >= 33 && r <= 125 && letter_count < MAX_INPUT {        
-                guess_buff[letter_count] = u8(r)                               
-                letter_count += 1                                           
-            }                                                               
-            r = rl.GetCharPressed()                                       
-        }                                                                   
-                                                                            
-        if rl.IsKeyPressed(.BACKSPACE) {                                    
-            letter_count -= 1                                               
-            if letter_count < 0 {                                           
-                letter_count = 0                                            
-            }                                                               
-            guess_buff[letter_count] = 0                                         
-        }
-        if mouse_on_text {                                                  
-            rl.SetMouseCursor(.IBEAM)                                       
-            
-        } else {                                                            
-            rl.SetMouseCursor(.DEFAULT)                                     
-        } 
-
-        frames_counter += 1 
-
-        if letter_count > 0 {
-            if guess_buff[0] >= 'A' && guess_buff[0] <= 'Z'{
-                valid_guess = true
-                guess = guess_buff[0] + 32
-            } else if guess_buff[0] >= 'a' && guess_buff[0] <= 'z' {
-                valid_guess = true
-                guess = guess_buff[0]
-            } else {
-                valid_guess = false
-            }  
-        }
-        if valid_guess {
-
-            if rl.IsKeyPressed(.ENTER) {
-                if !seen_runes[guess] {
-                    seen_runes[guess] = true
-                    tmp := rune(guess)
-                    if strings.contains_rune(answer, tmp) {
-                        place_found_rune(tmp)
-                        guess_buff[0] = 0
-                        letter_count = 0
-                    } else {
-                        fmt.printfln("%c Not in answer: %s", guess_buff[0], answer)
-                        guess_buff[0] = 0
-                        letter_count = 0
-                        lives -= 1
-                    }
-                } else {
-                  guess_buff[0] = 0
-                  letter_count = 0
-                }
-            }
+    for r > 0 {                                                       
+        if r >= 33 && r <= 125 && letter_count < MAX_INPUT {        
+            guess_buff[letter_count] = u8(r)                               
+            letter_count += 1                                           
+        }                                                               
+        r = rl.GetCharPressed()                                       
+    }                                                                   
+                                                                        
+    if rl.IsKeyPressed(.BACKSPACE) {                                    
+        letter_count -= 1                                               
+        if letter_count < 0 {                                           
+            letter_count = 0                                            
+        }                                                               
+        guess_buff[letter_count] = 0                                         
+    }
+    if mouse_on_text {                                                  
+        rl.SetMouseCursor(.IBEAM)                                       
+        
+    } else {                                                            
+        rl.SetMouseCursor(.DEFAULT)                                     
+    } 
+    frames_counter += 1 
+}
+    
+check_guess :: proc() {
+    if letter_count > 0 {
+        if guess_buff[0] >= 'A' && guess_buff[0] <= 'Z'{
+            valid_guess = true
+            guess = guess_buff[0] + 32
+        } else if guess_buff[0] >= 'a' && guess_buff[0] <= 'z' {
+            valid_guess = true
+            guess = guess_buff[0]
         } else {
-            if rl.IsKeyPressed(.ENTER) {
-                guess_buff[0] = 0
-                letter_count = 0
+            valid_guess = false
+        }  
+    }
+    if valid_guess {
+        if rl.IsKeyPressed(.ENTER) {
+            if !seen_runes[guess] {
+                seen_runes[guess] = true
+                tmp := rune(guess)
+                if strings.contains_rune(answer, tmp) {
+                    place_found_rune(tmp)
+                    guess_buff[0] = 0
+                    letter_count = 0
+                } else {
+                    fmt.printfln("%c Not in %s", guess_buff[0], answer)
+                    guess_buff[0] = 0
+                    letter_count = 0
+                    lives -= 1
+                }
+            } else {
+              guess_buff[0] = 0
+              letter_count = 0
             }
         }
+    } else {
+        if rl.IsKeyPressed(.ENTER) {
+            guess_buff[0] = 0
+            letter_count = 0
+        }
+    }   
 }
 
 place_found_rune :: proc(find: rune) {
@@ -264,7 +304,6 @@ place_found_rune :: proc(find: rune) {
     }  
     indx1 += 1
     }
-    
 }
 
 random_num :: proc(min: int, max: int) -> i32 {
@@ -289,7 +328,7 @@ game_state :: proc() {
     game_over = false
     ans_board = make([]byte, ans_len+(ans_len-1), context.allocator)
     for i: int; i < len(ans_board); i += 2 {
-        // Using underscore for blank space place holder.
+        // Using underscore for a blank space.
         ans_board[i] = '_'
         if i != len(ans_board)-1 {
             ans_board[i+1] = 32
