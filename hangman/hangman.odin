@@ -195,7 +195,7 @@ draw_text :: proc() {
 }
 
 
-draw_man :: proc(lives: int) {
+draw_man :: proc() {
     if lives < 6 {
     
         rl.DrawCircleLines(9*CELL_SIZE+2, 5*CELL_SIZE-10, 10, rl.LIGHTGRAY)     //
@@ -261,7 +261,7 @@ draw_board :: proc() {
 
 
     if !game_over {
-        draw_man(lives)                     // Draw man if game not over.
+        draw_man()                     // Draw man if game not over.
     }
 }
 
