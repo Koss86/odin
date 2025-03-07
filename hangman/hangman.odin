@@ -90,10 +90,6 @@ main :: proc() {
     camera := rl.Camera2D {
         zoom = f32(WINDOW_SIZE)/CANVAS_SIZE
     }
-    collision_box := rl.Rectangle {
-        367, 550,
-        50, 50
-    }
     
     rl.SetConfigFlags({.VSYNC_HINT})
     rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Hangman")
@@ -149,6 +145,8 @@ main :: proc() {
     
     rl.CloseWindow()
     delete_map(seen_runes)
+    delete(c_answer)
+    delete(ans_board)
     free_all(context.allocator)
 }
 draw_text :: proc() {
@@ -196,6 +194,7 @@ draw_text :: proc() {
 
 
 draw_man :: proc() {
+
     if lives < 6 {
     
         rl.DrawCircleLines(9*CELL_SIZE+2, 5*CELL_SIZE-10, 10, rl.LIGHTGRAY)     //
@@ -208,18 +207,21 @@ draw_man :: proc() {
         if lives < 5 {
             rect := rl.Rectangle {
                 pos.x-1, pos.y+39,
-                CELL_SIZE/2-2, CELL_SIZE+5
+                CELL_SIZE/2-2, CELL_SIZE+15
             }
             rl.DrawRectangleRec(rect, rl.LIGHTGRAY)                             // Draw Body
             if lives < 4 {
                 arm_rect := rect
-                arm_rect.width -= 1
-                arm_rect.x += -.5
+                arm_rect.x += -0.5
                 arm_rect.y += 4
+                arm_rect.width -= 1
+                arm_rect.height -= 8
+                r_leg_rect := arm_rect
                 rl.DrawRectanglePro(arm_rect, { 0, 0 }, 45, rl.LIGHTGRAY)       // Draw Right Arm
                 if lives < 3 {
                     arm_rect.x += 3
                     arm_rect.y += 3.5
+                    l_leg_rect := arm_rect
                     rl.DrawRectanglePro(arm_rect, { 0, 0 }, -45, rl.LIGHTGRAY)  // Draw Left Arm
                     if lives < 2 {
 
