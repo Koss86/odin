@@ -25,10 +25,9 @@ correct: int
 answer: string
 game_start: bool
 game_state: STATE
+valid_guess: bool
 ans_board: []byte
 letter_count: i32
-valid_guess: bool
-rune_indx: [15]int
 mouse_on_text: bool
 frames_counter: int
 guess_buff: [MAX_INPUT]byte
