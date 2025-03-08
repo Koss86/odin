@@ -25,7 +25,6 @@ correct: int
 answer: string
 game_start: bool
 game_state: STATE
-c_answer: cstring
 ans_board: []byte
 letter_count: i32
 valid_guess: bool
@@ -155,12 +154,11 @@ main :: proc() {
     
     rl.CloseWindow()
     delete_map(seen_runes)
-    delete(c_answer)
     delete(ans_board)
     for s in word_bank {
         delete(s)
     }
-    
+
 
 }
 draw_text :: proc() {
@@ -393,7 +391,7 @@ check_input :: proc() {
                     letter_count = 0
 
                 } else {
-                    fmt.printfln("%c Not in %s\nKey: %v", guess_buff[0], c_answer, key)
+                    fmt.printfln("%c Not in %s\nKey: %v", guess_buff[0], answer, key)
                     guess_buff[0] = 0
                     letter_count = 0
                     lives -= 1
@@ -434,13 +432,11 @@ random_num :: proc(min: int, max: int) -> i32 {
 game_init :: proc() {
     if game_start {
         delete(ans_board)
-        delete(c_answer)
     }
     key = random_num(0, BANK_SIZE-1)
     ans_len := len(word_bank[key])
     guess_buff[0] = 0
     answer = word_bank[key]
-    c_answer = strings.clone_to_cstring(word_bank[key], context.allocator)
     lives = 6
     correct = 0
     game_state = .Playing
