@@ -23,10 +23,8 @@ guess: u8
 lives: int
 correct: int
 answer: string
-game_state: STATE
-game_won: bool
-game_over: bool
 game_start: bool
+game_state: STATE
 c_answer: cstring
 ans_board: []byte
 letter_count: i32
@@ -86,7 +84,7 @@ main :: proc() {
     camera := rl.Camera2D {
         zoom = f32(WINDOW_SIZE)/CANVAS_SIZE
     }
-    
+    game_state = .Welcome
     rl.SetConfigFlags({.VSYNC_HINT})
     rl.InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Hangman")
     rl.SetTargetFPS(60)
@@ -99,14 +97,9 @@ main :: proc() {
         rl.BeginMode2D(camera)
 
         if lives < 1 {
-            game_over = true
+            game_state = .Lost
         } else if correct >= len(answer) {
-            game_won = true
-            congrats := fmt.ctprintf("Congradulations!\n   You Won!")
-            rl.DrawText(congrats, 38, 175, 25, ORANGE_CLR)
-            if rl.IsKeyPressed(.ENTER) {
-                game_init()
-            }
+            game_state = .Won
         }
         mouse_pos := rl.GetMousePosition()
         if rl.CheckCollisionPointRec({ mouse_pos.x/2.865, mouse_pos.y/2.865 }, text_box) {            
@@ -114,29 +107,40 @@ main :: proc() {
         } else {                                                            
             mouse_on_text = false                                           
         }
-        if game_start && !game_won {
-            handle_input()
-            check_input()
+        if game_state == .Playing {
+            if correct < len(answer) {
+                
+                handle_input()
+                check_input()
+            }
+        }
+        if game_state == .Won {
+            draw_man_lives()
+            rl.DrawText("Congradulations!\n   You Won!", 38, 175, 25, ORANGE_CLR)
+            if rl.IsKeyPressed(.ENTER) {
+                game_init()
+            }
+            
         }
 
-        if !game_start && !game_over {
+        if game_state == .Welcome {
             rl.DrawText("Welcome to Hangman!", 38, 175, 25, ORANGE_CLR)
             rl.DrawText("Press SPACE to begin.", 96, 200, 9, ORANGE_CLR)
             if rl.IsKeyPressed(.SPACE) || rl.IsKeyPressed(.ENTER) {
+                game_state = .Playing
                 game_start = true
             }
         } else {
             draw_board()
         }
 
-        if game_start { 
-            if !game_over {
-                if correct < len(answer) {
-                    draw_text()
-                }
+        if game_state == .Playing { 
+            
+            if correct < len(answer) {
+                draw_text()
             }
         }
-        if game_over {
+        if game_state == .Lost {
             rl.DrawText("        Game Over\nPress ENTER to play again.", 25, 175, 20, rl.MAROON)
             if rl.IsKeyPressed(.ENTER) {
                 game_init()
@@ -153,7 +157,10 @@ main :: proc() {
     delete_map(seen_runes)
     delete(c_answer)
     delete(ans_board)
-    free_all(context.allocator)
+    for s in word_bank {
+        delete(s)
+    }
+    
 
 }
 draw_text :: proc() {
@@ -206,6 +213,44 @@ draw_text :: proc() {
         }
         frames_counter = 0
     }
+}
+
+draw_man_lives :: proc() {
+
+    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-10, 10, rl.LIGHTGRAY)         //
+    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-10, 9.75, rl.LIGHTGRAY)       //
+    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-10, 9.5, rl.LIGHTGRAY)        // Draw Head
+    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-10, 9.25, rl.LIGHTGRAY)       //
+    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-10, 9, rl.LIGHTGRAY)          //
+    pos := Vec2 { 9*CELL_SIZE, 5*CELL_SIZE-2 }
+
+    rect := rl.Rectangle {
+        pos.x-1, pos.y+39,
+        CELL_SIZE/2-2, CELL_SIZE+15
+    }
+    rl.DrawRectangleRec(rect, rl.LIGHTGRAY)                         // Draw Body
+
+    arm_rect := rect
+    arm_rect.x += -0.5
+    arm_rect.y += 4
+    arm_rect.width -= 1
+    arm_rect.height -= 8
+    r_leg_rect := arm_rect
+    arm_rect.x += 4
+    rl.DrawRectanglePro(arm_rect, { 0, 0 }, 135, rl.LIGHTGRAY)       // Draw Right Arm
+
+    arm_rect.x += 3
+    arm_rect.y += 3.5
+    l_leg_rect := arm_rect
+    l_leg_rect.x -= 4
+    rl.DrawRectanglePro(arm_rect, { 0, 0 }, -135, rl.LIGHTGRAY)      // Draw Left Arm
+
+    r_leg_rect.x += 1
+    r_leg_rect.y += 22
+    rl.DrawRectanglePro(r_leg_rect, { 0, 0 }, 45, rl.LIGHTGRAY)     //Draw Right Leg
+
+    l_leg_rect.y += 22
+    rl.DrawRectanglePro(l_leg_rect, { 0, 0 }, -45, rl.LIGHTGRAY)    // Draw Left Leg
 }
 
 draw_man :: proc() {
@@ -283,7 +328,10 @@ draw_board :: proc() {
     }
     rl.DrawRectangleRec(rect, ORANGE_CLR)   // Draw top brace.
 
-    draw_man()                              // Draw man.
+    if game_state == .Playing || game_state == .Lost {
+        
+        draw_man()                              // Draw man.
+    }
 }
 
 handle_input :: proc() {
@@ -390,12 +438,12 @@ game_init :: proc() {
     }
     key = random_num(0, BANK_SIZE-1)
     ans_len := len(word_bank[key])
+    guess_buff[0] = 0
     answer = word_bank[key]
     c_answer = strings.clone_to_cstring(word_bank[key], context.allocator)
     lives = 6
     correct = 0
-    game_over = false
-    game_won = false
+    game_state = .Playing
     ans_board = make([]byte, ans_len+(ans_len-1), context.allocator)
     for i: int; i < len(ans_board); i += 2 {
         // Using underscore for a blank space.
