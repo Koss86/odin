@@ -459,11 +459,14 @@ game_init :: proc() {
         delete(ans_board)
         delete_map(seen_runes)
     }
+
     key = random_num(0, BANK_SIZE-2)
-    guess_buff[0] = 0
+    
     if debug {
         key = BANK_SIZE-1
     }
+    
+    guess_buff[0] = 0
     answer = word_bank[key]
     leng = len(answer)
     lives = 6
