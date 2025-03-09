@@ -2,9 +2,10 @@ package hangman
 import "core:os"
 import "core:fmt"
 import "core:mem"
-import "core:math/rand"
+import "core:bytes"
 import "core:strings"
 import "core:sys/info"
+import "core:math/rand"
 import rl "vendor:raylib"
 
 Vec2 :: rl.Vector2
@@ -15,14 +16,16 @@ GRID_WIDTH :: 20
 CELL_SIZE :: 16
 CANVAS_SIZE :: GRID_WIDTH*CELL_SIZE
 DIVIDE_FRAMES_BY :: 30
-BANK_SIZE :: 20
+BANK_SIZE :: 21
 MAX_INPUT :: 1
 
 key: i32
 guess: u8
+leng: int
 lives: int
 correct: int
 answer: string
+space_indx: int
 game_start: bool
 game_state: STATE
 valid_guess: bool
@@ -96,7 +99,7 @@ main :: proc() {
 
         if lives < 1 {
             game_state = .Lost
-        } else if correct >= len(answer) {
+        } else if correct >= leng {
             game_state = .Won
         }
         mouse_pos := rl.GetMousePosition()
@@ -106,7 +109,7 @@ main :: proc() {
             mouse_on_text = false                                           
         }
         if game_state == .Playing {
-            if correct < len(answer) {
+            if correct < leng {
                 
                 handle_input()
                 check_input()
@@ -134,7 +137,7 @@ main :: proc() {
 
         if game_state == .Playing { 
             
-            if correct < len(answer) {
+            if correct < leng {
                 draw_text()
             }
         }
@@ -412,7 +415,12 @@ place_found_rune :: proc(find: rune) {
     indx: int
     for r in answer {
         if find == r {
-            ans_board[indx*2] = byte(r)
+            if (indx*2)-1 >= space_indx {
+                ans_board[(indx*2)-1] = byte(r)
+                fmt.println(ans_board)
+            } else {
+                ans_board[indx*2] = byte(r)
+            }
             correct += 1
             fmt.printfln("%r Found in %s at position %v", find, answer, indx+1)
         }
@@ -431,18 +439,38 @@ random_num :: proc(min: int, max: int) -> i32 {
 game_init :: proc() {
     if game_start {
         delete(ans_board)
+        delete_map(seen_runes)
     }
-    key = random_num(0, BANK_SIZE-1)
-    ans_len := len(word_bank[key])
+   // key = random_num(0, BANK_SIZE-1)
+    key = 20
     guess_buff[0] = 0
     answer = word_bank[key]
+    leng = len(answer)
     lives = 6
     correct = 0
     game_state = .Playing
-    ans_board = make([]byte, ans_len+(ans_len-1), context.allocator)
+    
+    if strings.contains_space(answer) {
+        ans_board = make([]byte, leng+(leng-1), context.allocator)
+        space_indx = strings.index_rune(answer, ' ')
+        fmt.println(len(ans_board))
+        leng -= 1
+    } else {
+        ans_board = make([]byte, leng+(leng-1), context.allocator)
+        
+    }
+
     for i: int; i < len(ans_board); i += 2 {
+        if i-1 == (space_indx*2)-1 {
+            ans_board[i] = 32
+            ans_board[i+1] = 32
+            space_indx = i
+            i -= 1
+            continue
+        }
         // Using underscore for a blank space.
         ans_board[i] = '_'
+        // Adding blank space between `_`'s
         if i != len(ans_board)-1 {
             ans_board[i+1] = 32
         }
