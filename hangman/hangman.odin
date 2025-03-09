@@ -16,13 +16,14 @@ GRID_WIDTH :: 20
 CELL_SIZE :: 16
 CANVAS_SIZE :: GRID_WIDTH*CELL_SIZE
 DIVIDE_FRAMES_BY :: 30
-BANK_SIZE :: 21
+BANK_SIZE :: 24
 MAX_INPUT :: 1
 
 key: i32
 guess: u8
 leng: int
 lives: int
+score: f64
 correct: int
 answer: string
 space_indx: int
@@ -33,6 +34,7 @@ ans_board: []byte
 letter_count: i32
 mouse_on_text: bool
 frames_counter: int
+contains_space: bool
 guess_buff: [MAX_INPUT]byte
 word_bank: [BANK_SIZE] string
 seen_runes := make(map[u8]bool)
@@ -100,14 +102,17 @@ main :: proc() {
         if lives < 1 {
             game_state = .Lost
         } else if correct >= leng {
+            score += f64(leng)/0.5
             game_state = .Won
         }
         mouse_pos := rl.GetMousePosition()
+
         if rl.CheckCollisionPointRec({ mouse_pos.x/2.865, mouse_pos.y/2.865 }, text_box) {            
             mouse_on_text = true                                            
         } else {                                                            
             mouse_on_text = false                                           
         }
+
         if game_state == .Playing {
             if correct < leng {
                 
@@ -115,9 +120,14 @@ main :: proc() {
                 check_input()
             }
         }
+
         if game_state == .Won {
             draw_man_lives()
             rl.DrawText("Congradulations!\n   You Won!", 38, 175, 25, ORANGE_CLR)
+            tmp := strings.clone_from_bytes(ans_board, context.temp_allocator)
+            ans_board_cstr := strings.clone_to_cstring(tmp, context.temp_allocator)
+            rl.DrawText(ans_board_cstr, i32(text_box.x-25), i32(text_box.y)-35, 10, rl.BLACK)
+
             if rl.IsKeyPressed(.ENTER) {
                 game_init()
             }
@@ -136,13 +146,19 @@ main :: proc() {
         }
 
         if game_state == .Playing { 
-            
+            score_str := fmt.ctprintf("Score: %v", score)
+            rl.DrawText(score_str, 7*CELL_SIZE, 16*CELL_SIZE, 15, rl.BLACK)
             if correct < leng {
                 draw_text()
             }
         }
+
         if game_state == .Lost {
             rl.DrawText("        Game Over\nPress ENTER to play again.", 25, 175, 20, rl.MAROON)
+            
+            ans_str := fmt.ctprintf("Answer was %s", strings.to_pascal_case(answer, context.temp_allocator))
+            rl.DrawText(ans_str, 6*CELL_SIZE, 14*CELL_SIZE, 10, rl.RED)
+
             if rl.IsKeyPressed(.ENTER) {
                 game_init()
             }
@@ -174,8 +190,8 @@ draw_text :: proc() {
     tmp := strings.clone_from_bytes(ans_board, context.temp_allocator)
     ans_board_cstr := strings.clone_to_cstring(tmp, context.temp_allocator)
     rl.DrawText(ans_board_cstr, i32(text_box.x-25), i32(text_box.y)-35, 10, rl.BLACK)
-    if lives > 3 {
 
+    if lives > 3 {
         lives_str := fmt.ctprintf("Lives: %i", lives)
         rl.DrawText(lives_str, CELL_SIZE, 3*CELL_SIZE+2, 10, rl.GRAY)
     } else {
@@ -187,20 +203,19 @@ draw_text :: proc() {
     c_guess := strings.clone_to_cstring(tmp_str, context.temp_allocator)
 
     if letter_count < MAX_INPUT {
-
         if (frames_counter/DIVIDE_FRAMES_BY)%2 == 0 {
+
             // Removed rl.MeasureText since we are only using 
             // one character at a time, so it was unneeded.
             rl.DrawText("_", i32(text_box.x) + 2, i32(text_box.y) + 3, 9, rl.MAROON)
         } 
         rl.DrawText("Guess a letter.", i32(text_box.x)-32, i32(text_box.y)+13, 10, rl.GRAY)
-
     } else {
         rl.DrawText(c_guess, i32(text_box.x)+3, i32(text_box.y)+1, 9, rl.MAROON)
 
         if valid_guess {
-
             if seen_runes[guess] {
+
                 rl.DrawText("Already been guessed.", i32(text_box.x)-38, i32(text_box.y)+13, 10, rl.MAROON)
                 rl.DrawText("Press ENTER to try again.", i32(text_box.x)-38, i32(text_box.y)+24, 10, rl.MAROON)
             } else {
@@ -329,7 +344,6 @@ draw_board :: proc() {
     rl.DrawRectangleRec(rect, ORANGE_CLR)   // Draw top brace.
 
     if game_state == .Playing || game_state == .Lost {
-        
         draw_man()                              // Draw man.
     }
 }
@@ -338,7 +352,7 @@ handle_input :: proc() {
     r := rl.GetCharPressed() 
 
     for r > 0 {                                                       
-        if r >= 33 && r <= 125 && letter_count < MAX_INPUT {        
+        if r >= 33 && r <= 125 && letter_count < MAX_INPUT {       
             guess_buff[letter_count] = u8(r)                               
             letter_count += 1                                           
         }                                                               
@@ -366,7 +380,6 @@ handle_input :: proc() {
 check_input :: proc() {
 
     if letter_count > 0 {
-
         if guess_buff[0] >= 'A' && guess_buff[0] <= 'Z'{
             valid_guess = true
             guess = guess_buff[0] + 32
@@ -380,9 +393,7 @@ check_input :: proc() {
         }  
     }
     if valid_guess {
-
         if rl.IsKeyPressed(.ENTER) {
-
             if !seen_runes[guess] {
                 seen_runes[guess] = true
                 tmp := rune(guess)
@@ -391,9 +402,8 @@ check_input :: proc() {
                     place_found_rune(tmp)
                     guess_buff[0] = 0
                     letter_count = 0
-
                 } else {
-                    fmt.printfln("%c Not in %s\nKey: %v", guess_buff[0], answer, key)
+                    //fmt.printfln("%c Not in %s\nKey: %v", guess_buff[0], answer, key)
                     guess_buff[0] = 0
                     letter_count = 0
                     lives -= 1
@@ -413,16 +423,22 @@ check_input :: proc() {
 
 place_found_rune :: proc(find: rune) {
     indx: int
+
     for r in answer {
         if find == r {
-            if (indx*2)-1 >= space_indx {
-                ans_board[(indx*2)-1] = byte(r)
-                fmt.println(ans_board)
+
+            if contains_space {
+                if (indx*2)-1 >= space_indx {
+                    ans_board[(indx*2)-1] = byte(r)
+                } else {
+                    ans_board[indx*2] = byte(r)
+                }
+                
             } else {
                 ans_board[indx*2] = byte(r)
             }
             correct += 1
-            fmt.printfln("%r Found in %s at position %v", find, answer, indx+1)
+            //fmt.printfln("%r Found in %s at position %v", find, answer, indx+1)
         }
         indx += 1
     }
@@ -441,27 +457,26 @@ game_init :: proc() {
         delete(ans_board)
         delete_map(seen_runes)
     }
-   // key = random_num(0, BANK_SIZE-1)
-    key = 20
+    key = random_num(0, BANK_SIZE-1)
+    //key = 21
     guess_buff[0] = 0
     answer = word_bank[key]
     leng = len(answer)
     lives = 6
     correct = 0
+
     game_state = .Playing
-    
-    if strings.contains_space(answer) {
-        ans_board = make([]byte, leng+(leng-1), context.allocator)
+    contains_space = strings.contains_space(answer)
+    ans_board = make([]byte, leng+(leng-1), context.allocator)
+    if contains_space {
         space_indx = strings.index_rune(answer, ' ')
-        fmt.println(len(ans_board))
         leng -= 1
-    } else {
-        ans_board = make([]byte, leng+(leng-1), context.allocator)
-        
     }
 
     for i: int; i < len(ans_board); i += 2 {
-        if i-1 == (space_indx*2)-1 {
+        
+        if i-1 == (space_indx*2)-1 && contains_space {
+
             ans_board[i] = 32
             ans_board[i+1] = 32
             space_indx = i
