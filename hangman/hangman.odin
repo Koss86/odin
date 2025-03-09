@@ -134,10 +134,10 @@ main :: proc() {
 
         if game_state == .Won {
             draw_man_lives()
-            rl.DrawText("Congradulations!\n   You Won!", 38, 175, 25, ORANGE_CLR)
+            rl.DrawText("Congradulations!\n      You Won!", 38, 175, 25, ORANGE_CLR)
             tmp := strings.clone_from_bytes(ans_board, context.temp_allocator)
             ans_board_cstr := strings.clone_to_cstring(tmp, context.temp_allocator)
-            rl.DrawText(ans_board_cstr, i32(text_box.x-25), i32(text_box.y)-35, 10, rl.BLACK)
+            rl.DrawText(ans_board_cstr, i32(text_box.x-25), i32(text_box.y)+15, 13, rl.BLACK)
 
             if rl.IsKeyPressed(.ENTER) {
                 game_init()
