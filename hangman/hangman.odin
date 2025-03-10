@@ -465,8 +465,9 @@ game_init :: proc() {
     if debug {
         key = BANK_SIZE-1
     }
-    
+    letter_count = 0
     guess_buff[0] = 0
+    valid_guess = false
     answer = word_bank[key]
     leng = len(answer)
     lives = 6
