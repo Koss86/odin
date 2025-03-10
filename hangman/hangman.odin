@@ -238,11 +238,11 @@ draw_text :: proc() {
 }
 draw_man_lives :: proc() {
 
-    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-10, 10, rl.LIGHTGRAY)         //
-    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-10, 9.75, rl.LIGHTGRAY)       //
-    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-10, 9.5, rl.LIGHTGRAY)        // Draw Head
-    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-10, 9.25, rl.LIGHTGRAY)       //
-    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-10, 9, rl.LIGHTGRAY)          //
+    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-5, 10, rl.LIGHTGRAY)         //
+    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-5, 9.75, rl.LIGHTGRAY)       //
+    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-5, 9.5, rl.LIGHTGRAY)        // Draw Head
+    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-5, 9.25, rl.LIGHTGRAY)       //
+    rl.DrawCircleLines(9*CELL_SIZE+2, 7*CELL_SIZE-5, 9, rl.LIGHTGRAY)          //
 
     pos := Vec2 { 9*CELL_SIZE, 5*CELL_SIZE-2 }
     rect := rl.Rectangle {
