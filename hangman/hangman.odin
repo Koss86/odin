@@ -204,6 +204,7 @@ game_init :: proc() {
     guess_buff[0] = 0
     valid_guess = false
     answer = word_bank[key]
+    answer = strings.trim_right_space(answer)
     ans_leng = len(answer)
     ans_board_leng := ans_leng + ans_leng - 1
 
