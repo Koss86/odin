@@ -116,6 +116,7 @@ main :: proc() {
         // Check if player won or lost
         if lives < 1 {
             game_state = .Lost
+            score = 0
         } else if correct >= ans_leng && game_state == .Playing {
             score = score * (f64(lives) / 0.5)
             game_state = .Won
@@ -134,38 +135,20 @@ main :: proc() {
             case .Playing:
                 draw_game_board()
                 handle_input()
-                score_str := fmt.ctprintf("Score: %v", score)
-                rl.DrawText(score_str, 7 * CELL_SIZE, 16 * CELL_SIZE, 15, rl.BLACK)
 
             case .Won:
                 draw_game_board()
-                score_str := fmt.ctprintf("Score: %v", score)
-                rl.DrawText(score_str, 7 * CELL_SIZE, 16 * CELL_SIZE, 15, rl.BLACK)
                 rl.DrawText("Congratulations!\n      You Won!", 38, 170, 25, ORANGE_CLR)
-                tmp_cstr := strings.clone_to_cstring(
-                    string(ans_board),
-                    context.temp_allocator,
-                )
-                rl.DrawText(
-                    tmp_cstr,
-                    i32(text_box.x - 25),
-                    i32(text_box.y) + 15,
-                    13,
-                    rl.BLACK,
-                )
+                tmp := strings.clone_to_cstring(string(ans_board), context.temp_allocator)
+                rl.DrawText(tmp, i32(text_box.x - 25), i32(text_box.y) + 15, 13, rl.BLACK)
                 if rl.IsKeyPressed(.ENTER) {
                     game_init()
                 }
 
             case .Lost:
                 draw_game_board()
-                rl.DrawText(
-                    "        Game Over\nPress ENTER to play again.",
-                    25,
-                    175,
-                    20,
-                    rl.MAROON,
-                )
+                rl.DrawText("Game Over.", 80, 175, 20, rl.MAROON)
+                rl.DrawText("Press ENTER to play again.", 20, 195, 20, rl.MAROON)
                 ans_str := fmt.ctprintf("Answer was %s", answer)
                 rl.DrawText(ans_str, 6 * CELL_SIZE, 14 * CELL_SIZE, 10, rl.RED)
                 if rl.IsKeyPressed(.ENTER) {
@@ -242,7 +225,7 @@ game_init :: proc() {
         }
         // Using underscore for a blank space.
         ans_board[i] = '_'
-        // Adding blank space between `_`'s
+        // Adding a space between `_`'s
         if i != ans_board_leng - 1 {
             ans_board[i + 1] = ' '
         }
@@ -278,11 +261,19 @@ draw_game_board :: proc() {
 
     draw_game_text()
 
-    if game_state == .Playing || game_state == .Lost {
-        draw_man()
-    } else {
-        draw_man_lives()
+    #partial switch game_state {
+        case .Playing:
+            draw_man()
+            score_str := fmt.ctprintf("Score: %v", score)
+            rl.DrawText(score_str, 7 * CELL_SIZE, 16 * CELL_SIZE, 15, rl.BLACK)
+        case .Won:
+            draw_man_lives()
+            score_str := fmt.ctprintf("Score: %v", score)
+            rl.DrawText(score_str, 7 * CELL_SIZE, 16 * CELL_SIZE, 15, rl.BLACK)
+        case .Lost:
+            draw_man()
     }
+
 }
 
 draw_man :: proc() {
@@ -524,7 +515,7 @@ check_guess :: proc() {
     }
 
     if valid_guess {
-        if rl.IsKeyPressed(.ENTER) {
+        if rl.IsKeyPressed(.ENTER) || rl.IsKeyPressed(.SPACE) {
             if !seen_runes[guess] {
                 seen_runes[guess] = true
                 tmp := rune(guess)
@@ -540,7 +531,7 @@ check_guess :: proc() {
             letter_count = 0
         }
     } else {
-        if rl.IsKeyPressed(.ENTER) {
+        if rl.IsKeyPressed(.ENTER) || rl.IsKeyPressed(.SPACE) {
             guess_buff[0] = 0
             letter_count = 0
         }
@@ -551,7 +542,7 @@ place_found_rune :: proc(find: rune) {
 
     indx: int
     for r in answer {
-        if find == r {
+        if r == find {
             if contains_space {
                 if (indx * 2) - 1 >= ans_board_space_indx {
                     ans_board[(indx * 2) - 1] = byte(r) // place letters after the space
