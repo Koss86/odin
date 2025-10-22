@@ -1,52 +1,75 @@
 package aoc_2024_day3
 
-import "core:os"
 import "core:fmt"
-import "core:slice"
-import "core:strings"
+import "core:os"
 import "core:strconv"
-import "core:text/scanner"
+import "core:strings"
 
 MAX_MUL :: 12
 MIN_MUL :: 8
 
 main :: proc() {
-    muls: [dynamic] string
-    file:= "input2.txt"
-    data, ok := os.read_entire_file(file, context.allocator)
+    muls: [dynamic]string
+    keepers: [dynamic]int
+    data, ok := os.read_entire_file("input.txt", context.allocator)
     if !ok {
-        fmt.eprintfln("Error. Unable to open file.")
-        return
+        panic("Error. Unable to open file.")
     }
-    defer delete(data, context.allocator)
+    defer {
+        delete(data, context.allocator)
+        delete(muls)
+        delete(keepers)
+    }
 
     it := string(data)
     indx: int
-    do_: bool
+    enabled := true
     for line in strings.split_lines_iterator(&it) {
-        n := len(line)
-         for i in 0..<n {
-            if line[i] == 'm' && line[i+1] == 'u' && line[i+2] == 'l' && line[i+3] == '(' {
-                found: bool = false
-                for j:=MIN_MUL-1; j < MAX_MUL; j += 1 {
-                    
-                    if i+j >= n || found {
+
+        leng := len(line)
+        for i in 0 ..< leng - 4 {
+
+            if i < leng - 7 {
+                doOrDont := line[i:i + 7]
+                if doOrDont == "don't()" {
+                    enabled = false
+                    continue
+                }
+            }
+            if i < leng - 4 {
+                doOrDont := line[i:i + 4]
+                if doOrDont == "do()" {
+                    enabled = true
+                    continue
+                }
+            }
+
+            mul := line[i:i + 4]
+
+            if mul == "mul(" {
+                mul_found := false
+                for j := MIN_MUL - 1; j < MAX_MUL; j += 1 {
+
+                    if i + j >= leng || mul_found {
                         continue
                     }
-                    if line[i+j] == ')' {
-                        dif := j
-                        if line[i+5] != ',' {
-                            if line[i+6] != ',' {
-                                if line[i+7] != ',' {
+                    // mul(1,1) mul(12,12) mul(100,100)
+                    if line[i + j] == ')' {
+                        if line[i + 5] != ',' {
+                            if line[i + 6] != ',' {
+                                if line[i + 7] != ',' {
                                     continue
                                 }
                             }
                         }
-                        found = true
-                        start := i+4
-                        end := i+j
+
+                        mul_found = true
+                        start := i + 4
+                        end := i + j
                         append(&muls, line[start:end])
-                        //fmt.println(indx, muls[indx])
+                        if enabled {
+                            append(&keepers, indx)
+                        }
                         indx += 1
                     }
                 }
@@ -54,20 +77,32 @@ main :: proc() {
         }
     }
 
-   ct, one, two, total: int
-    for str in muls { // 87,556,383 too low. 173,517,243  173,573,173 too high
+    indx = 0
+    one, two, total1, total2: int
+    for str, i in muls {
         mul_str := str
         tmp, ok := strings.split_iterator(&mul_str, ",")
-        //fmt.printf("%s ", tmp)
-        one = strconv.atoi(tmp)
-        //fmt.printf("%i ", one)
+        checkOk(ok)
+        one, ok = strconv.parse_int(tmp)
+        checkOk(ok)
 
         tmp, ok = strings.split_iterator(&mul_str, ",")
-        //fmt.println(tmp)
-        two = strconv.atoi(tmp)
-        //fmt.println(two)
-        mul:= one*two
-        total += mul
+        checkOk(ok)
+        two, ok = strconv.parse_int(tmp)
+        checkOk(ok)
+
+        mul := one * two
+        total1 += mul
+        if indx < len(keepers) && i == keepers[indx] {
+            total2 += mul
+            indx += 1
+        }
     }
-    fmt.println(total)
+    fmt.println("Part 1 answer:", total1) // 173517243
+    fmt.println("Part 2 answer:", total2) // 100450138
+}
+checkOk :: proc(ok: bool) {
+    if !ok {
+        panic("Error.")
+    }
 }
