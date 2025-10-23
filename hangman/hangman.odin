@@ -1,5 +1,4 @@
 package hangman
-import "core:bytes"
 import "core:fmt"
 import "core:math/rand"
 import "core:mem"
@@ -33,7 +32,7 @@ game_started: bool
 mouse_on_text: bool
 frames_counter: int
 contains_space: bool
-seen_runes: ^map[u8]bool
+seen_runes: map[u8]bool
 ans_board_space_indx: int
 guess_buff: [MAX_INPUT]byte
 word_bank: [BANK_SIZE]string
@@ -95,9 +94,7 @@ main :: proc() {
     }
     delete(word_list_buf)
 
-    // Create map for guessed letters
-    map_temp := make(map[u8]bool, context.allocator)
-    seen_runes = &map_temp
+    seen_runes = make(map[u8]bool, context.allocator)
     game_init()
 
     camera := rl.Camera2D {
@@ -162,7 +159,7 @@ main :: proc() {
         ///////////////////////// End of Main Loop /////////////////////////
     }
     rl.CloseWindow()
-    delete(map_temp)
+    delete(seen_runes)
     delete(ans_board)
     for s in word_bank {
         delete(s)
@@ -187,7 +184,7 @@ game_init :: proc() {
 
     if game_started {
         delete(ans_board, context.allocator)
-        clear_map(seen_runes)
+        clear_map(&seen_runes)
         game_state = .Playing
     } else {
         game_state = .Welcome
