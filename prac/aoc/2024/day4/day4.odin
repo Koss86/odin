@@ -1,6 +1,5 @@
 package day4_2024
 import "core:fmt"
-import "core:mem"
 import "core:os"
 import "core:strings"
 
