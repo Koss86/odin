@@ -78,7 +78,7 @@ main :: proc() {
         }
     }
     fmt.println("Part 1 answer:", total1)
-    fmt.println("Partt 2 answer:", total2)
+    fmt.println("Part 2 answer:", total2)
 }
 makeValid :: proc(rules: ^[dynamic]int2, page: [dynamic]int) {
     for i in 0 ..< len(rules) {
