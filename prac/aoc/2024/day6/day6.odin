@@ -26,19 +26,17 @@ main :: proc() {
         append(&labMap, str)
     }
 
+    seenLocs := make(map[int2]bool)
+    grdDirMap := make(map[int2]Direction)
+    defer free_all(context.temp_allocator)
+    xyMax: int2 = {len(labMap), len(labMap[0])}
     curPos := guardLoc(&labMap)
     dir: Direction = .Up
-    seenLocs := make(map[int2]bool)
-    usedLocs := make(map[int2]bool)
-    defer free_all(context.temp_allocator)
-    xyRange: int2 = {len(labMap), len(labMap[0])}
+    grdDirMap[curPos] = .Up
     seenLocs[curPos] = true
-    total1 := 1
 
-    for curPos.x > 0 && curPos.x < xyRange.x - 1 && curPos.y > 0 && curPos.y < xyRange.y - 1 {
-
+    for curPos.x > 0 && curPos.x < xyMax.x - 1 && curPos.y > 0 && curPos.y < xyMax.y - 1 {
         switch dir {
-
             case .Up:
                 // Check if way forward is clear
                 if labMap[curPos.x + UP.x][curPos.y] != '#' {
@@ -46,12 +44,11 @@ main :: proc() {
                     curPos += UP
                     // Check if we've been to this spot
                     if !seenLocs[curPos] {
-                        total1 += 1
                         seenLocs[curPos] = true
+                        // Save what direction the guard was going.
+                        grdDirMap[curPos] = .Up
                     }
                 } else {
-                    // Set to used where objects already are
-                    usedLocs[curPos + UP] = true
                     dir = .Right
                 }
 
@@ -59,11 +56,10 @@ main :: proc() {
                 if labMap[curPos.x + DOWN.x][curPos.y] != '#' {
                     curPos += DOWN
                     if !seenLocs[curPos] {
-                        total1 += 1
                         seenLocs[curPos] = true
+                        grdDirMap[curPos] = .Down
                     }
                 } else {
-                    usedLocs[curPos + DOWN] = true
                     dir = .Left
                 }
 
@@ -71,11 +67,10 @@ main :: proc() {
                 if labMap[curPos.x][curPos.y + LEFT.y] != '#' {
                     curPos += LEFT
                     if !seenLocs[curPos] {
-                        total1 += 1
                         seenLocs[curPos] = true
+                        grdDirMap[curPos] = .Left
                     }
                 } else {
-                    usedLocs[curPos + LEFT] = true
                     dir = .Up
                 }
 
@@ -83,128 +78,99 @@ main :: proc() {
                 if labMap[curPos.x][curPos.y + RIGHT.y] != '#' {
                     curPos += RIGHT
                     if !seenLocs[curPos] {
-                        total1 += 1
                         seenLocs[curPos] = true
+                        grdDirMap[curPos] = .Right
                     }
                 } else {
-                    usedLocs[curPos + RIGHT] = true
                     dir = .Down
                 }
         }
     }
-    fmt.println("Part 1 answer:", total1) // 5534
+    fmt.println("Part 1 answer:", len(seenLocs)) // 5534
 
-    total2: int
-    placeObj: int2
-    guardPos := guardLoc(&labMap)
-    usedLocs[guardPos] = true
-
-    // This takes ~20 seconds to complete
-    for str, x in labMap {
-        for r, y in str {
-            placeObj = {x, y}
-            if !usedLocs[placeObj] {
-                if testForLoop(&labMap, &seenLocs, guardPos, placeObj) {
-                    total2 += 1
-                    // fmt.println(total2)
-                }
-                usedLocs[{x, y}] = true
+    total: int
+    // Search seenLocs (guard's potrol path) for potential loops
+    for key, value in seenLocs {
+        if value {
+            if testForLoop(&labMap, key, grdDirMap[key]) {
+                total += 1
             }
         }
     }
-    fmt.println("Part 2 answer:", total2) // 2262
+    fmt.println("Part 2 answer:", total) // 2262
 }
 
-testForLoop :: proc(
-    labMap: ^[dynamic]string,
-    seenLocs: ^map[int2]bool,
-    guardPos: int2,
-    objectPos: int2,
-) -> bool {
+testForLoop :: proc(labMap: ^[dynamic]string, objPos: int2, dir: Direction) -> bool {
+    dir := dir
+    curPos: int2
+    switch dir {
+        case .Up:
+            // Move curPos back 1 from new object
+            curPos = objPos + DOWN
+            // Turn direction
+            dir = .Right
 
+        case .Down:
+            curPos = objPos + UP
+            dir = .Left
+
+        case .Left:
+            curPos = objPos + RIGHT
+            dir = .Up
+
+        case .Right:
+            curPos = objPos + LEFT
+            dir = .Down
+    }
+
+    loop: int
     LIMIT :: 100
-    guardPos := guardPos
-    possLoop: int
-    seenLocs^ = {}
-    dir: Direction = .Up
-    xyRange: int2 = {len(labMap), len(labMap[0])}
-
-    for guardPos.x > 0 &&
-        guardPos.x < xyRange.x - 1 &&
-        guardPos.y > 0 &&
-        guardPos.y < xyRange.y - 1 {
-
+    seenLocs := make(map[int2]bool)
+    seenLocs[curPos] = true
+    xyMax: int2 = {len(labMap), len(labMap[objPos.x])}
+    for curPos.x > 0 && curPos.x < xyMax.x - 1 && curPos.y > 0 && curPos.y < xyMax.y - 1 {
         switch dir {
 
             case .Up:
-                if labMap[guardPos.x + UP.x][guardPos.y] != '#' &&
-                   guardPos + UP != objectPos {
-                    if !seenLocs[guardPos] {
-                        seenLocs[guardPos] = true
-                        possLoop = 0
-                    } else {
-                        possLoop += 1
-                    }
-                    if possLoop > LIMIT {
-                        return true
-                    }
-                    guardPos += UP
+                if labMap[curPos.x + UP.x][curPos.y] != '#' && curPos + UP != objPos {
+                    curPos += UP
                 } else {
                     dir = .Right
                 }
 
             case .Down:
-                if labMap[guardPos.x + DOWN.x][guardPos.y] != '#' &&
-                   guardPos + DOWN != objectPos {
-                    if !seenLocs[guardPos] {
-                        seenLocs[guardPos] = true
-                        possLoop = 0
-                    } else {
-                        possLoop += 1
-                    }
-                    if possLoop > LIMIT {
-                        return true
-                    }
-                    guardPos += DOWN
+                if labMap[curPos.x + DOWN.x][curPos.y] != '#' && curPos + DOWN != objPos {
+                    curPos += DOWN
                 } else {
                     dir = .Left
                 }
 
             case .Left:
-                if labMap[guardPos.x][guardPos.y + LEFT.y] != '#' &&
-                   guardPos + LEFT != objectPos {
-                    if !seenLocs[guardPos] {
-                        seenLocs[guardPos] = true
-                        possLoop = 0
-                    } else {
-                        possLoop += 1
-                    }
-                    if possLoop > LIMIT {
-                        return true
-                    }
-                    guardPos += LEFT
+                if labMap[curPos.x][curPos.y + LEFT.y] != '#' && curPos + LEFT != objPos {
+                    curPos += LEFT
                 } else {
                     dir = .Up
                 }
 
             case .Right:
-                if labMap[guardPos.x][guardPos.y + RIGHT.y] != '#' &&
-                   guardPos + RIGHT != objectPos {
-                    if !seenLocs[guardPos] {
-                        seenLocs[guardPos] = true
-                        possLoop = 0
-                    } else {
-                        possLoop += 1
-                    }
-                    if possLoop > LIMIT {
-                        return true
-                    }
-                    guardPos += RIGHT
+                if labMap[curPos.x][curPos.y + RIGHT.y] != '#' && curPos + RIGHT != objPos {
+                    curPos += RIGHT
                 } else {
                     dir = .Down
                 }
         }
+        if !seenLocs[curPos] {
+            seenLocs[curPos] = true
+            loop = 0
+        } else {
+            loop += 1
+        }
+        if loop > LIMIT {
+            delete(seenLocs)
+            return true
+        }
     }
+    delete(seenLocs)
     return false
 }
 guardLoc :: proc(labMap: ^[dynamic]string) -> int2 {
