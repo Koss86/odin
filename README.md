@@ -9,3 +9,5 @@ prac/snek has a more complete version of the snek game (A tutorial by [Karl Zyli
 prac/aoc is all the aoc puzzles I've done in odin.
 
 And breakout/ is a started but incomplete game from another [Karl Zylinski](https://zylinski.se) tutorial.
+
+> Sorry about all the `.` commit messages. I'm still learning the intricacies of git and I originally wasn't planning on sharing this repo. But I think others learning Odin may get some use out of it.
