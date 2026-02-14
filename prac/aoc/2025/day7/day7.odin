@@ -7,8 +7,8 @@ LEFT :: -1
 RIGHT :: 1
 
 main :: proc() {
-    file, ok := os.read_entire_file("input")
-    check_ok(ok)
+    file, err := os.read_entire_file_from_path("input", context.allocator)
+    check_err(err)
     input_grid: [dynamic][dynamic]u8
     buf: [dynamic]u8
     for r in file {
@@ -57,7 +57,7 @@ main :: proc() {
                 if !beam_above[splitter + LEFT] {
                     beam_above[splitter + LEFT] = true
                     // Since there was no beam above position splitter + LEFT,
-                    // set the number of beams equal to beams a position splitter
+                    // set the number of beams equal to beams at position splitter
                     beams_in_pos[splitter + LEFT] = beams_in_pos[splitter]
                 } else {
                     // If beams were above, combine beams at position splitter
@@ -92,8 +92,9 @@ main :: proc() {
     delete(splitters_pos)
     free_all(context.temp_allocator)
 }
-check_ok :: proc(ok: bool, loc := #caller_location) {
-    if !ok {
-        panic("Somthing's not ok.", loc)
+check_err :: proc(err: os.Error, loc := #caller_location) {
+    if err != nil {
+        fmt.println("error:", err)
+        panic("", loc)
     }
 }

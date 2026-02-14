@@ -10,18 +10,20 @@ Ranges :: struct {
 
 main :: proc() {
 
-    file, ok := os.read_entire_file("input")
-    checkOk(ok)
+    file, err := os.read_entire_file_from_path("input", context.allocator)
+    check_err(err)
     strFile := string(file)
     idRanges: [dynamic]Ranges
 
     for str in strings.split_iterator(&strFile, ",") {
-        str := str
-        strBuf: Ranges
-        for range in strings.split_iterator(&str, "-") {
-            append(&strBuf.range, range)
+        if str != "\n" || str == "" {
+            str := str
+            strBuf: Ranges
+            for range in strings.split_iterator(&str, "-") {
+                append(&strBuf.range, range)
+            }
+            append(&idRanges, strBuf)
         }
-        append(&idRanges, strBuf)
     }
     defer {
         for id in idRanges {
@@ -33,11 +35,20 @@ main :: proc() {
 
     invalid1, invalid2: int
     for id in idRanges {
-        st, end: int
-        st, ok = strconv.parse_int(id.range[0])
-        checkOk(ok)
+        end: int
+        st, ok := strconv.parse_int(id.range[0])
+        if !ok {
+            s := strings.trim_space(id.range[0])
+            st, ok = strconv.parse_int(s)
+            checkOk(ok)
+        }
+
         end, ok = strconv.parse_int(id.range[1])
-        checkOk(ok)
+        if !ok {
+            s := strings.trim_space(id.range[1])
+            end, ok = strconv.parse_int(s)
+            checkOk(ok)
+        }
 
         for i := st; i <= end; i += 1 {
             if i < 10 {
@@ -94,5 +105,11 @@ invalidP2 :: proc(str: string) -> bool {
 checkOk :: proc(ok: bool, loc := #caller_location) {
     if !ok {
         panic("Somthing's not ok", loc)
+    }
+}
+check_err :: proc(err: os.Error, loc := #caller_location) {
+    if err != nil {
+        fmt.println("error:", err)
+        panic("", loc)
     }
 }

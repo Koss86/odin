@@ -6,8 +6,8 @@ import "core:strconv"
 import "core:strings"
 
 main :: proc() {
-    file, ok := os.read_entire_file("input")
-    checkOk(ok)
+    file, err := os.read_entire_file_from_path("input", context.allocator)
+    check_err(err)
     strFile := string(file)
     Banks := strings.split_lines(strFile)
 
@@ -39,8 +39,7 @@ main :: proc() {
     total_jolts = 0
     multiplier := 100000000000
     for bank in Banks {
-        n := findJolts(bank, 0, len(bank) - 12, multiplier)
-        total_jolts += n
+        total_jolts += findJolts(bank, 0, len(bank) - 12, multiplier)
     }
     fmt.println("Part 2 answer:", total_jolts)
 }
@@ -58,6 +57,10 @@ findJolts :: proc(bank: string, start: int, end: int, mul: int) -> int {
         }
     }
 
+    if n == "" {
+        return 0
+    }
+
     N, ok := strconv.parse_int(n)
     checkOk(ok)
     if mul == 1 {
@@ -70,5 +73,11 @@ findJolts :: proc(bank: string, start: int, end: int, mul: int) -> int {
 checkOk :: proc(ok: bool, loc := #caller_location) {
     if !ok {
         panic("Somthing's not ok", loc)
+    }
+}
+check_err :: proc(err: os.Error, loc := #caller_location) {
+    if err != nil {
+        fmt.println("error:", err)
+        panic("", loc)
     }
 }

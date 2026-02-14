@@ -6,8 +6,8 @@ import "core:strconv"
 import "core:strings"
 
 main :: proc() {
-    file, ok := os.read_entire_file("input")
-    check_ok(ok)
+    file, err := os.read_entire_file_from_path("input", context.allocator)
+    check_err(err)
     str_file := string(file)
     buf: [dynamic]string
     math_probs: [dynamic][dynamic]string
@@ -23,7 +23,7 @@ main :: proc() {
     for line in strings.split_lines_iterator(&str_file) {
         line := line
         for str in strings.split_iterator(&line, " ") {
-            if str == "" {continue}
+            if str == "" { continue }
             append(&buf, str)
         }
         append(&math_probs, buf)
@@ -53,14 +53,19 @@ returnSum :: proc(operator: string, numbers: [dynamic]int) -> int {
                 sum += n
             }
         case "*":
-            n0 := numbers[0]
+            sum = numbers[0]
             for i := 1; i < len(numbers); i += 1 {
-                if numbers[i] == 0 {continue}
-                n0 = n0 * numbers[i]
-                sum = n0
+                if numbers[i] == 0 { continue }
+                sum = sum * numbers[i]
             }
     }
     return sum
+}
+check_err :: proc(err: os.Error, loc := #caller_location) {
+    if err != nil {
+        fmt.println("error:", err)
+        panic("", loc)
+    }
 }
 check_ok :: proc(ok: bool, loc := #caller_location) {
     if !ok {

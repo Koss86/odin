@@ -15,8 +15,8 @@ RIGHT_DOWN :: Vec2{1, 1}
 LEFT_DOWN :: Vec2{-1, 1}
 
 main :: proc() {
-    file, ok := os.read_entire_file("input")
-    checkOk(ok)
+    file, err := os.read_entire_file_from_path("input", context.allocator)
+    check_err(err)
     str_file := string(file)
     Map: [dynamic]string
     for line in strings.split_lines_iterator(&str_file) {
@@ -75,26 +75,26 @@ isAccessible :: proc(Map: ^[dynamic]string, open_space: ^map[Vec2]bool, pos: Vec
     occupied: int
     switch pos.y {
         case 0:
-            if !open_space[pos + DOWN] {occupied += 1}
-            if !open_space[pos + LEFT] {occupied += 1}
-            if !open_space[pos + RIGHT] {occupied += 1}
-            if !open_space[pos + LEFT_DOWN] {occupied += 1}
-            if !open_space[pos + RIGHT_DOWN] {occupied += 1}
+            if !open_space[pos + DOWN] { occupied += 1 }
+            if !open_space[pos + LEFT] { occupied += 1 }
+            if !open_space[pos + RIGHT] { occupied += 1 }
+            if !open_space[pos + LEFT_DOWN] { occupied += 1 }
+            if !open_space[pos + RIGHT_DOWN] { occupied += 1 }
         case len(Map) - 1:
-            if !open_space[pos + UP] {occupied += 1}
-            if !open_space[pos + LEFT] {occupied += 1}
-            if !open_space[pos + RIGHT] {occupied += 1}
-            if !open_space[pos + LEFT_UP] {occupied += 1}
-            if !open_space[pos + RIGHT_UP] {occupied += 1}
+            if !open_space[pos + UP] { occupied += 1 }
+            if !open_space[pos + LEFT] { occupied += 1 }
+            if !open_space[pos + RIGHT] { occupied += 1 }
+            if !open_space[pos + LEFT_UP] { occupied += 1 }
+            if !open_space[pos + RIGHT_UP] { occupied += 1 }
         case:
-            if !open_space[pos + UP] {occupied += 1}
-            if !open_space[pos + DOWN] {occupied += 1}
-            if !open_space[pos + LEFT] {occupied += 1}
-            if !open_space[pos + RIGHT] {occupied += 1}
-            if !open_space[pos + LEFT_UP] {occupied += 1}
-            if !open_space[pos + RIGHT_UP] {occupied += 1}
-            if !open_space[pos + LEFT_DOWN] {occupied += 1}
-            if !open_space[pos + RIGHT_DOWN] {occupied += 1}
+            if !open_space[pos + UP] { occupied += 1 }
+            if !open_space[pos + DOWN] { occupied += 1 }
+            if !open_space[pos + LEFT] { occupied += 1 }
+            if !open_space[pos + RIGHT] { occupied += 1 }
+            if !open_space[pos + LEFT_UP] { occupied += 1 }
+            if !open_space[pos + RIGHT_UP] { occupied += 1 }
+            if !open_space[pos + LEFT_DOWN] { occupied += 1 }
+            if !open_space[pos + RIGHT_DOWN] { occupied += 1 }
     }
     if occupied < 4 {
         return true
@@ -104,5 +104,12 @@ isAccessible :: proc(Map: ^[dynamic]string, open_space: ^map[Vec2]bool, pos: Vec
 checkOk :: proc(ok: bool, loc := #caller_location) {
     if !ok {
         panic("Somthing's not ok.", loc)
+    }
+}
+
+check_err :: proc(err: os.Error, loc := #caller_location) {
+    if err != nil {
+        fmt.println("error:", err)
+        panic("", loc)
     }
 }

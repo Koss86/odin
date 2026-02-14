@@ -13,18 +13,21 @@ turns :: struct {
 }
 
 main :: proc() {
-    file, ok := os.read_entire_file("input")
-    checkOk(ok)
+    file, err := os.read_entire_file_from_path("input", context.allocator)
+    check_err(err)
     strFile := string(file)
     Rotations: [dynamic]turns
     Lines := strings.split_lines(strFile)
 
     for line in Lines {
-        buf: turns
-        buf.dir = line[:1]
-        buf.amt, ok = strconv.parse_int(line[1:])
-        checkOk(ok)
-        append(&Rotations, buf)
+        if line != "" {
+            buf: turns
+            buf.dir = line[:1]
+            ok: bool
+            buf.amt, ok = strconv.parse_int(line[1:])
+            checkOk(ok)
+            append(&Rotations, buf)
+        }
     }
 
     curPos := 50
@@ -63,5 +66,12 @@ resetPos :: proc(pos: ^int) {
 checkOk :: proc(ok: bool, loc := #caller_location) {
     if !ok {
         panic("Somthing's not ok.", loc)
+    }
+}
+
+check_err :: proc(err: os.Error, loc := #caller_location) {
+    if err != nil {
+        fmt.println("error:", err)
+        panic("", loc)
     }
 }

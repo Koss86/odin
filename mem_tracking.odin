@@ -2,7 +2,13 @@ package mem_tracking
 import "core:fmt"
 import "core:mem"
 
-mem_tracking :: proc() {
+// Created by: Karl Zylinski
+
+// To use this, paste the 'when ODIN_DEBUG {}' block at the top of main. 
+// Then run the binary with the '-debug' flag to print out any memory leaks.
+
+
+main :: proc() {
     when ODIN_DEBUG {
         track1: mem.Tracking_Allocator
         track2: mem.Tracking_Allocator

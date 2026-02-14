@@ -6,7 +6,7 @@ import "core:slice"
 // Return true if all have the same root.
 all_in_circuit :: proc(uf_map: ^[INPUT_LEN]int) -> bool {
     r := find_root(0, uf_map)
-    for i in 0 ..< INPUT_LEN {
+    for i in 1 ..< INPUT_LEN {
         if find_root(i, uf_map) != r {
             return false
         }

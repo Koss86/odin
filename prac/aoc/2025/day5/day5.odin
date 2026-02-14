@@ -7,8 +7,8 @@ import "core:strings"
 Vec2 :: [2]int
 
 main :: proc() {
-    file, ok := os.read_entire_file("input")
-    check_ok(ok)
+    file, err := os.read_entire_file_from_path("input", context.allocator)
+    check_err(err)
     strFile := string(file)
     input := strings.split_after(strFile, "\n\n")
     ranges: [dynamic]Vec2
@@ -150,5 +150,11 @@ valid_id :: proc(id: int, ranges: [dynamic]Vec2) -> bool {
 check_ok :: proc(ok: bool, loc := #caller_location) {
     if !ok {
         panic("Somthing's not ok.", loc)
+    }
+}
+check_err :: proc(err: os.Error, loc := #caller_location) {
+    if err != nil {
+        fmt.println("error:", err)
+        panic("", loc)
     }
 }
