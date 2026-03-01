@@ -86,8 +86,10 @@ main :: proc() {
     // real input = 1000
     cons_to_make: int
     switch locs_size {
-        case 20: cons_to_make = 10
-        case INPUT_LEN: cons_to_make = INPUT_LEN
+        case 20:
+            cons_to_make = 10
+        case INPUT_LEN:
+            cons_to_make = INPUT_LEN
     }
 
     made_uf_cons: map[int]bool // Track connections made in uf_map
