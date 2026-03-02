@@ -14,10 +14,14 @@ Square :: struct {
 }
 
 main :: proc() {
-    file, err := os.read_entire_file_from_path("input", context.allocator)
-    // file, err := os.read_entire_file_from_path("example", context.allocator)
-    // file, err := os.read_entire_file_from_path("test_case01", context.allocator)
-    // file, err := os.read_entire_file_from_path("test_case02", context.allocator)
+    file: []byte
+    err: os.Error
+    arg := os.args
+    if len(arg) < 2 {
+        file, err = os.read_entire_file_from_path("input", context.allocator)
+    } else {
+        file, err = os.read_entire_file_from_path(arg[1], context.allocator)
+    }
     check_err(err)
     defer delete(file)
 

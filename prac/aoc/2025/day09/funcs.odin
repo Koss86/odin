@@ -12,10 +12,7 @@ check_square :: proc(corners: [2][2]Int2, tile_edges: ^map[Int2]bool) -> bool {
     h1 = {corners[0].x, corners[1].y}
     h2 = {corners[0].y, corners[1].x}
 
-    if !check_vertical(v1, v2, tile_edges) {
-        return false
-    }
-    if !check_horizontal(h1, h2, tile_edges) {
+    if !check_vertical(v1, v2, tile_edges) || !check_horizontal(h1, h2, tile_edges) {
         return false
     }
     return true
@@ -67,6 +64,7 @@ check_horizontal :: proc(h1, h2: [2]Int2, tile_edges: ^map[Int2]bool) -> bool {
                 if !scanned {
                     if scan_y({i, h2[0].y}, tile_edges) {
                         inside = true
+                        scanned = true
                     } else {
                         return false
                     }
@@ -143,15 +141,10 @@ scan_x :: proc(c: Int2, tile_edges: ^map[Int2]bool) -> bool {
     l, r: bool
     for key in tile_edges {
         if key.y == c.y {
-            if !r {
-                if key.x >= c.x {
-                    r = true
-                }
-            }
-            if !l {
-                if key.x <= c.x {
-                    l = true
-                }
+            if key.x >= c.x {
+                r = true
+            } else if key.x <= c.x {
+                l = true
             }
             if r && l { return true }
         }
@@ -164,15 +157,10 @@ scan_y :: proc(c: Int2, tile_edges: ^map[Int2]bool) -> bool {
     u, d: bool
     for key in tile_edges {
         if key.x == c.x {
-            if !d {
-                if key.y >= c.y {
-                    d = true
-                }
-            }
-            if !u {
-                if key.y <= c.y {
-                    u = true
-                }
+            if key.y >= c.y {
+                d = true
+            } else if key.y <= c.y {
+                u = true
             }
         }
         if u && d { return true }
@@ -205,14 +193,14 @@ connect_tiles :: proc(from, to: Int2, tile_edges: ^map[Int2]bool) {
 find_area :: proc(c1, c2: Int2) -> int {
     w, h: int
     if c1.x >= c2.x {
-        w += c1.x - c2.x
+        w = c1.x - c2.x
     } else {
-        w += c2.x - c1.x
+        w = c2.x - c1.x
     }
     if c1.y >= c2.y {
-        h += c1.y - c2.y
+        h = c1.y - c2.y
     } else {
-        h += c2.y - c1.y
+        h = c2.y - c1.y
     }
     w += 1
     h += 1
@@ -264,9 +252,10 @@ print_grid :: proc(c1, c2: [2]Int2, tile_edges: ^map[Int2]bool, list: ^[]Int2) {
     ylw := "\e[33m"
     grn := "\e[32m"
     blu := "\e[34m"
-    wh := find_bounds(tile_edges)
-    w := wh[1].x + 2
-    h := wh[1].y + 1
+    _, max := find_bounds(tile_edges)
+    w, h: int
+    w = max.x + 2
+    h = max.y + 1
     fmt.println()
     for y in 0 ..< h {
         for x in 0 ..< w {
@@ -313,7 +302,7 @@ in_tile_map :: proc(corner: Int2, tile_edges: ^map[Int2]bool) -> bool {
     return false
 }
 // Return the x & y min-max of tiles.
-find_bounds :: proc(tile_edges: ^map[Int2]bool) -> [2]Int2 {
+find_bounds :: proc(tile_edges: ^map[Int2]bool) -> (Int2, Int2) {
     x_max, y_max: int
     x_min := 9999999999
     y_min := x_min
@@ -333,7 +322,7 @@ find_bounds :: proc(tile_edges: ^map[Int2]bool) -> [2]Int2 {
     }
     x_max += 1
     y_max += 1
-    return [2]Int2{{x_min, y_min}, {x_max, y_max}}
+    return {x_min, y_min}, {x_max, y_max}
 }
 check_ok :: proc(ok: bool, loc := #caller_location) {
     if !ok {
