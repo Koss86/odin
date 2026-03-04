@@ -113,7 +113,7 @@ findImbalance :: proc(List: ^[dynamic]prog, parent: string, found: ^bool) -> int
         }
     }
     // If unbalanced, the weight will be in either index 0 or i of cWeight,
-    // below determins if 0 or i is the correct index for the unbalanced weight.
+    // below determines if 0 or i is the correct index for the unbalanced weight.
     // And since the weights were appended in order, the same index will work to
     // index into List[].children to get the name of the unbalanced branch.
     if !balanced && !found^ {
