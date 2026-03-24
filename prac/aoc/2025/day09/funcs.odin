@@ -245,7 +245,7 @@ merge_squares :: proc(left: ^[]Square, right: ^[]Square, main: ^[]Square) {
         m += 1
     }
 }
-// Only usful for example/test inputs. Still neat though.
+// Only useful for example/test inputs. Still neat though.
 print_grid :: proc(c1, c2: [2]Int2, tile_edges: ^map[Int2]bool, list: ^[]Int2) {
     reset := "\e[m"
     red := "\e[31m"
@@ -326,7 +326,7 @@ find_bounds :: proc(tile_edges: ^map[Int2]bool) -> (Int2, Int2) {
 }
 check_ok :: proc(ok: bool, loc := #caller_location) {
     if !ok {
-        panic("Somthing's not ok.", loc)
+        panic("Something's not ok.", loc)
     }
 }
 check_err :: proc(err: os.Error, loc := #caller_location) {
