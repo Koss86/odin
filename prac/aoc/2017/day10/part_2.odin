@@ -36,58 +36,36 @@ part_2 :: proc(file: ^[]byte) {
             }
 
             if reverse {
-                st := cur_pos
-                end := end_idx
-                if st < end {
-                    for _ in 0 ..< len / 2 {
-                        tmp := list[st]
-                        list[st] = list[end]
-                        list[end] = tmp
-                        st += 1
-                        end -= 1
-                    }
-                } else {
-                    for _ in 0 ..< len / 2 {
-                        tmp := list[st]
-                        list[st] = list[end]
-                        list[end] = tmp
-                        if st >= list_size - 1 {
-                            st = 0
-                        } else {
-                            st += 1
-                        }
-                        if end <= 0 {
-                            end = list_size - 1
-                        } else {
-                            end -= 1
-                        }
-                    }
-                }
+                list_slc := list[:]
+                reverse_sequence_u8(cur_pos, end_idx, list_size, len, &list_slc)
             }
             cur_pos = (cur_pos + int(len) + skip) % list_size
             skip += 1
         }
     }
 
-    list_idx: int
     dense_hash: [dynamic]u8
     defer delete(dense_hash)
 
-    for _ in 0 ..< 16 {
-        hash_buf: [dynamic]u8
-        defer delete(hash_buf)
-        for _ in 0 ..< 16 {
-            append(&hash_buf, list[list_idx])
-            list_idx += 1
-        }
-        append(&dense_hash, generate_dense_hash_byte(hash_buf[:]))
-    }
+    generate_dense_hash(list[:], &dense_hash)
 
     fmt.printf("Part 2 answer: ")
     for byte in dense_hash {
         fmt.printf("%2x", byte)
     }
     fmt.print("\n")
+}
+generate_dense_hash :: proc(sparse_hash: []u8, dense_hash: ^[dynamic]u8) {
+    idx: int
+    for _ in 0 ..< 16 {
+        hash_buf: [dynamic]u8
+        defer delete(hash_buf)
+        for _ in 0 ..< 16 {
+            append(&hash_buf, sparse_hash[idx])
+            idx += 1
+        }
+        append(dense_hash, generate_dense_hash_byte(hash_buf[:]))
+    }
 }
 generate_dense_hash_byte :: proc(hash_buf: []u8) -> u8 {
     l := len(hash_buf)
@@ -96,6 +74,36 @@ generate_dense_hash_byte :: proc(hash_buf: []u8) -> u8 {
         h = h ~ hash_buf[i]
     }
     return h
+}
+reverse_sequence_u8 :: proc(st, end, list_size: int, len: u8, list: ^[]u8) {
+    st := st
+    end := end
+    if st < end {
+        for _ in 0 ..< len / 2 {
+            tmp := list[st]
+            list[st] = list[end]
+            list[end] = tmp
+            st += 1
+            end -= 1
+        }
+    } else {
+        for _ in 0 ..< len / 2 {
+            tmp := list[st]
+            list[st] = list[end]
+            list[end] = tmp
+            if st >= list_size - 1 {
+                st = 0
+            } else {
+                st += 1
+            }
+            if end <= 0 {
+                end = list_size - 1
+            } else {
+                end -= 1
+            }
+        }
+    }
+
 }
 // Will print out current sequence being reversed, while highlighting the two
 // elements that are currently being swapped.

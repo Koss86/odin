@@ -42,33 +42,8 @@ main :: proc() {
         }
 
         if reverse {
-            st := cur_pos
-            end := end_idx
-            if st < end {
-                for _ in 0 ..< leng / 2 {
-                    tmp := list[st]
-                    list[st] = list[end]
-                    list[end] = tmp
-                    st += 1
-                    end -= 1
-                }
-            } else {
-                for _ in 0 ..< leng / 2 {
-                    tmp := list[st]
-                    list[st] = list[end]
-                    list[end] = tmp
-                    if st == list_size - 1 {
-                        st = 0
-                    } else {
-                        st += 1
-                    }
-                    if end == 0 {
-                        end = list_size - 1
-                    } else {
-                        end -= 1
-                    }
-                }
-            }
+            list_slc := list[:]
+            reverse_sequence(cur_pos, end_idx, leng, list_size, &list_slc)
         }
 
         cur_pos = (cur_pos + leng + skip) % list_size
@@ -76,6 +51,35 @@ main :: proc() {
     }
     fmt.println("Part 1 answer:", list[0] * list[1])
     part_2(&file)
+}
+reverse_sequence :: proc(st, end, leng, list_size: int, list: ^[]int) {
+    st := st
+    end := end
+    if st < end {
+        for _ in 0 ..< leng / 2 {
+            tmp := list[st]
+            list[st] = list[end]
+            list[end] = tmp
+            st += 1
+            end -= 1
+        }
+    } else {
+        for _ in 0 ..< leng / 2 {
+            tmp := list[st]
+            list[st] = list[end]
+            list[end] = tmp
+            if st == list_size - 1 {
+                st = 0
+            } else {
+                st += 1
+            }
+            if end == 0 {
+                end = list_size - 1
+            } else {
+                end -= 1
+            }
+        }
+    }
 }
 print_sequence :: proc(st, end: int, list: []int) {
     if st < end {
