@@ -84,8 +84,8 @@ main :: proc() {
     }
 
     // Read word_list into word_bank[]
-    word_list_buf, ok := os.read_entire_file("word_list.txt", context.allocator)
-    checkErr(ok)
+    word_list_buf, err := os.read_entire_file("word_list.txt", context.allocator)
+    check_err(err)
     indx: int
     word_list_str := string(word_list_buf)
     for str in strings.split_iterator(&word_list_str, ",") {
@@ -165,13 +165,13 @@ main :: proc() {
         delete(s)
     }
 }
-
-checkErr :: proc(ok: bool) {
-    if !ok {
-        panic("Error.")
+check_err :: proc(err: os.Error, loc := #caller_location) {
+    if err != nil {
+        fmt.eprintln("Error: %v", err)
+        fmt.println("At:", loc)
+        os.exit(1)
     }
 }
-
 random_num :: proc(min: int, max: int) -> i32 {
     min := i32(min)
     max := i32(max)
@@ -375,11 +375,7 @@ draw_game_text :: proc() {
         )
     }
 
-    rl.DrawRectangleLinesEx(
-        {13 * CELL_SIZE, 4 * CELL_SIZE - 4, 83, 1},
-        1,
-        {210, 100, 75, 255},
-    )
+    rl.DrawRectangleLinesEx({13 * CELL_SIZE, 4 * CELL_SIZE - 4, 83, 1}, 1, {210, 100, 75, 255})
     rl.DrawText(
         rl.TextFormat("Correct/Total\n       %i/%i", correct, ans_leng),
         13 * CELL_SIZE + 3,
@@ -408,13 +404,7 @@ draw_game_text :: proc() {
                 // one character at a time, so it was unneeded.
                 rl.DrawText("_", i32(text_box.x) + 2, i32(text_box.y) + 3, 9, rl.MAROON)
             }
-            rl.DrawText(
-                "Guess a letter.",
-                i32(text_box.x) - 32,
-                i32(text_box.y) + 13,
-                10,
-                rl.GRAY,
-            )
+            rl.DrawText("Guess a letter.", i32(text_box.x) - 32, i32(text_box.y) + 13, 10, rl.GRAY)
         } else {
 
             c_guess := strings.clone_to_cstring(string(guess_buff[:]), context.temp_allocator)
@@ -499,7 +489,6 @@ handle_input :: proc() {
 }
 
 check_guess :: proc() {
-
     if guess_buff[0] >= 'A' && guess_buff[0] <= 'Z' {
         valid_guess = true
         guess = guess_buff[0] + 32
@@ -537,21 +526,17 @@ check_guess :: proc() {
 }
 
 place_found_rune :: proc(find: rune) {
-
     indx: int
     for r in answer {
         if r == find {
-            if contains_space {
-                if (indx * 2) - 1 >= ans_board_space_indx {
-                    ans_board[(indx * 2) - 1] = byte(r) // place letters after the space
-                } else {
-                    ans_board[indx * 2] = byte(r) // place letters before the space
-                }
+            if contains_space && (indx * 2) - 1 >= ans_board_space_indx {
+                ans_board[(indx * 2) - 1] = byte(r) // place letters after the space
             } else {
-                ans_board[indx * 2] = byte(r) // words with no space
+                ans_board[indx * 2] = byte(r) // before space and words with no space
             }
             correct += 1
         }
         indx += 1
     }
 }
+
