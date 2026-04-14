@@ -51,7 +51,7 @@ parse_input :: proc(file: ^[]u8) -> []Card {
     return cards[:]
 }
 
-// Return if card it's a winner and how many numbers matched.
+// Return if card is a winner and how many numbers matched.
 check_card :: proc(scratcher: Card) -> (matched: int, winner: bool) {
     for h in scratcher.have {
         for w in scratcher.winners {
