@@ -10,11 +10,6 @@ Card :: struct {
     have:    [dynamic]int,
 }
 
-Won :: struct {
-    idx: int, // Index for correct card in cards[].
-    amt: int, // Number of 'haves' that match 'winners'.
-}
-
 parse_input :: proc(file: ^[]u8) -> []Card {
 
     str_file := string(file^)
@@ -67,25 +62,18 @@ check_card :: proc(scratcher: Card) -> (matched: int, winner: bool) {
 
 // If card is a winner, recursively search for the amount of cards it will grant.
 // If not a winner, return 1 for itself.
-counting_cards :: proc(cur_card: int, won: ^[]Won) -> (amt_cards: int) {
+counting_cards :: proc(
+    cur_card: int,
+    won: ^map[int]bool,
+    matched: ^map[int]int,
+) -> (
+    amt_cards := 1,
+) {
 
-    winner: bool
-    won_idx: int
+    if !won[cur_card] do return amt_cards
 
-    for v, i in won {
-        if v.idx == cur_card {
-            winner = true
-            won_idx = i
-            break
-        }
-    }
-
-    amt_cards = 1
-
-    if !winner do return amt_cards
-
-    for i in 1 ..< won[won_idx].amt + 1 {
-        amt_cards += counting_cards(cur_card + i, won)
+    for i in 1 ..< matched[cur_card] + 1 {
+        amt_cards += counting_cards(cur_card + i, won, matched)
     }
 
     return amt_cards

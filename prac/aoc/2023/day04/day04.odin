@@ -9,19 +9,19 @@ main :: proc() {
     check_err(err)
 
     cards := parse_input(&file)
-    won: [dynamic]Won
     sum: int
+    won: map[int]bool
+    matches: map[int]int
 
     for card, i in cards {
 
         matched, winner := check_card(card)
 
         if winner {
-            buf: Won
-            buf.idx = i
-            buf.amt = matched
-            append(&won, buf)
+
             points := 1
+            won[i] = true
+            matches[i] = matched
 
             for _ in 0 ..< matched - 1 {
                 points = points * 2
@@ -34,10 +34,9 @@ main :: proc() {
 
     sum = 0
     l := len(cards)
-    won_slice := won[:]
 
     for i in 0 ..< l {
-        sum += counting_cards(i, &won_slice)
+        sum += counting_cards(i, &won, &matches)
     }
     fmt.println("Part 2 answer:", sum)
 }
