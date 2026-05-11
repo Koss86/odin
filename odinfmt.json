@@ -9,7 +9,7 @@
 	"new_line_limit": 1,
 	"sort_imports": true,
 	"indent_cases": true,
-	"convert_do": true,
+	"convert_do": false,
 	"inline_single_stmt_case": false,
 	"spaces_around_colons": false,
 	"space_single_line_blocks": true,
