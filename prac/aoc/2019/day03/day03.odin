@@ -13,7 +13,7 @@ main :: proc() {
     // file, err := os.read_entire_file("inputs/p2/example2", context.allocator)
     check_err(err)
 
-    wires := parse_input(&file)
+    wires := parse_input_into_wires(&file)
     paths := wire_paths(&wires)
     intersecs: [dynamic]Vec2
 

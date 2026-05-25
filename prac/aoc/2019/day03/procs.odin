@@ -24,7 +24,7 @@ Wires :: struct {
     wire_2: []Wire_Path,
 }
 
-parse_input :: proc(file: ^[]u8) -> (wires: Wires) {
+parse_input_into_wires :: proc(file: ^[]u8) -> (wires: Wires) {
 
     wire_two: bool
     wire_1: [dynamic]Wire_Path
@@ -145,23 +145,23 @@ least_steps :: proc(paths: ^[][]Vec2, intersecs: []Vec2) -> int {
     }
 
     s_buf: Step
-    n_steps_1, n_steps_2: int
+    s1, s2: int
     steps_1, steps_2: [dynamic]Step
 
     for v in paths[0] {
-        n_steps_1 += 1
+        s1 += 1
         if xings[v] {
             s_buf.pos = v
-            s_buf.steps = n_steps_1
+            s_buf.steps = s1
             append(&steps_1, s_buf)
         }
     }
 
     for v in paths[1] {
-        n_steps_2 += 1
+        s2 += 1
         if xings[v] {
             s_buf.pos = v
-            s_buf.steps = n_steps_2
+            s_buf.steps = s2
             append(&steps_2, s_buf)
         }
     }
